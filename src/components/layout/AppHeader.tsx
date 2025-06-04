@@ -1,0 +1,74 @@
+
+import React from "react";
+import { Bell, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+export function AppHeader() {
+  return (
+    <header className="h-16 border-b flex items-center justify-between px-4 bg-white">
+      <div>
+        <h1 className="text-lg font-medium">SecureKloud Intranet</h1>
+      </div>
+      
+      <div className="flex items-center space-x-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Bell className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <div className="flex flex-col space-y-1">
+                <span className="font-medium">New holiday policy update</span>
+                <span className="text-xs text-muted-foreground">2 hours ago</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex flex-col space-y-1">
+                <span className="font-medium">Upcoming performance review</span>
+                <span className="text-xs text-muted-foreground">1 day ago</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex flex-col space-y-1">
+                <span className="font-medium">Internal job posting: Senior Developer</span>
+                <span className="text-xs text-muted-foreground">3 days ago</span>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="flex items-center space-x-2" size="sm">
+              <Avatar className="h-8 w-8">
+                <AvatarFallback className="bg-skcloud-purple text-white">JD</AvatarFallback>
+              </Avatar>
+              <span>John Doe</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Logout</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}
