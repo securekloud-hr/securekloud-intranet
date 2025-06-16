@@ -14,11 +14,12 @@ const Index = () => {
       </div>
       
       <QuickStats />
-      
+          {/* 
       <section>
         <h2 className="section-title">Quick Access</h2>
         <QuickLinks />
       </section>
+            */}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <section>

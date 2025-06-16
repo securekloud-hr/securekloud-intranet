@@ -15,8 +15,15 @@ import {
 export function AppHeader() {
   return (
     <header className="h-16 border-b flex items-center justify-between px-4 bg-white">
-      <div>
-        <h1 className="text-lg font-medium">SecureKloud Intranet</h1>
+     <div>
+  <img
+    src="/SecureKloud_Logo.jpg"
+    alt="SecureKloud Logo"
+    className="h-8 w-auto"
+  />
+
+
+{/* <h1 className="text-lg font-medium">SecureKloud Intranet</h1> */}
       </div>
       
       <div className="flex items-center space-x-2">
@@ -54,9 +61,10 @@ export function AppHeader() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center space-x-2" size="sm">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-skcloud-purple text-white">JD</AvatarFallback>
+                <AvatarFallback className="bg-skcloud-purple text-white"></AvatarFallback>
               </Avatar>
-              <span>John Doe</span>
+              <span>profile</span>{/*need to change 
+              */}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
