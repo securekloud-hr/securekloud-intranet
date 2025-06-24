@@ -25,6 +25,7 @@ import Talentacquisition from "./pages/Talentacquisition";
 import Holidays from "./pages/Holidays";
 import NotFound from "./pages/NotFound";
 import OrgStructure from "./pages/orgstructure";
+import Performance from "./pages/Performance";
 
 // Login System
 import LoginPage from "./pages/LoginPage";
@@ -71,6 +72,7 @@ const App = () => {
                   <Route path="/jobs" element={<InternalJobs />} />
                   <Route path="/talent" element={<Talentacquisition />} />
                   <Route path="/org" element={<OrgStructure />} />
+                  <Route path="/performce" element={<Performance />} />
                   <Route
   path="/admin/add-announcement"
   element={<AdminAddAnnouncement user={user} />}
