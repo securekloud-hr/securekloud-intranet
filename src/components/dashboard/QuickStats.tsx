@@ -9,6 +9,11 @@ export function QuickStats() {
     { label: "Holidays", value: "12" },
   ];
 
+  // Set to false to hide
+  const showStats = false;
+
+  if (!showStats) return null;
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {stats.map((stat, index) => (

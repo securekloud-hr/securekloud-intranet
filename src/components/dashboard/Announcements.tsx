@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Announcement = {
@@ -10,26 +10,21 @@ type Announcement = {
 };
 
 export function Announcements() {
-  const announcements: Announcement[] = [
-    {
-      title: "Quarterly Performance Reviews",
-      date: "June 15, 2025",
-      content: "Quarterly performance reviews will begin next week. Please complete your self-assessment by Friday.",
-      category: "HR",
-    },
-    {
-      title: "New Data Security Policy",
-      date: "June 10, 2025",
-      content: "A new data security policy has been implemented. All employees must complete the training by the end of the month.",
-      category: "Policies",
-    },
-    {
-      title: "Team Building Event",
-      date: "June 25, 2025",
-      content: "Join us for a team building event at the Grand Hotel. RSVP by June 20.",
-      category: "Employee Engagement",
-    },
-  ];
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+useEffect(() => {
+  const localData = JSON.parse(localStorage.getItem("announcements") || "[]");
+
+  if (localData.length > 0) {
+    // If there are announcements added by admin (from localStorage)
+    setAnnouncements(localData);
+  } else {
+    // Otherwise, use default announcements from announcements.json
+    fetch("/data/announcements.json")
+      .then((res) => res.json())
+      .then((data) => setAnnouncements(data));
+  }
+}, []);
+
 
   const getCategoryColor = (category: string): string => {
     switch (category) {

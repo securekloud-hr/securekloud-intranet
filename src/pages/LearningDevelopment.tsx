@@ -1,5 +1,5 @@
 
-
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Lightbulb, BookOpen, Search, Clock, Award, Trophy } from "lucide-react"
 interface Course {
   id: string;
   title: string;
-  category: 'technical' | 'professional' | 'compliance' | 'leadership';
+  category: "technical" | "professional" | "compliance" | "leadership";
   description: string;
   duration: string;
   instructor: string;
@@ -31,7 +31,7 @@ const courses: Course[] = [
     instructor: "David Chen",
     enrolled: true,
     progress: 75,
-    featured: true
+    featured: true,
   },
   {
     id: "2",
@@ -40,7 +40,7 @@ const courses: Course[] = [
     description: "Explore advanced DevOps methodologies and automation techniques.",
     duration: "6 hours",
     instructor: "Michelle Wong",
-    new: true
+    new: true,
   },
   {
     id: "3",
@@ -50,7 +50,7 @@ const courses: Course[] = [
     duration: "3 hours",
     instructor: "James Wilson",
     enrolled: true,
-    progress: 30
+    progress: 30,
   },
   {
     id: "4",
@@ -60,7 +60,7 @@ const courses: Course[] = [
     duration: "2 hours",
     instructor: "Sarah Johnson",
     enrolled: true,
-    progress: 100
+    progress: 100,
   },
   {
     id: "5",
@@ -69,7 +69,7 @@ const courses: Course[] = [
     description: "Develop essential leadership skills for technology professionals.",
     duration: "5 hours",
     instructor: "Robert Zhang",
-    featured: true
+    featured: true,
   },
   {
     id: "6",
@@ -78,7 +78,7 @@ const courses: Course[] = [
     description: "Learn how to deploy and manage applications in Kubernetes.",
     duration: "8 hours",
     instructor: "Emily Davis",
-    new: true
+    new: true,
   },
   {
     id: "7",
@@ -86,7 +86,7 @@ const courses: Course[] = [
     category: "professional",
     description: "Master the fundamentals of effective project management.",
     duration: "4 hours",
-    instructor: "Michael Brown"
+    instructor: "Michael Brown",
   },
   {
     id: "8",
@@ -96,8 +96,8 @@ const courses: Course[] = [
     duration: "1 hour",
     instructor: "Lisa Chen",
     enrolled: true,
-    progress: 50
-  }
+    progress: 50,
+  },
 ];
 
 interface Certification {
@@ -106,6 +106,7 @@ interface Certification {
   provider: string;
   description: string;
   reimbursement?: boolean;
+  link: string;
 }
 
 const certifications: Certification[] = [
@@ -114,227 +115,262 @@ const certifications: Certification[] = [
     title: "AWS Certified Solutions Architect",
     provider: "Amazon Web Services",
     description: "Design and deploy distributed systems on AWS.",
-    reimbursement: true
+    reimbursement: true,
+    link: "https://aws.amazon.com/training/",
   },
   {
     id: "2",
     title: "Microsoft Azure Administrator",
     provider: "Microsoft",
     description: "Implement, monitor, and maintain Microsoft Azure solutions.",
-    reimbursement: true
+    reimbursement: true,
+    link: "https://learn.microsoft.com/en-us/certifications/azure-administrator/",
   },
   {
     id: "3",
     title: "Certified Information Systems Security Professional (CISSP)",
     provider: "ISC²",
     description: "Security expertise across a broad range of domains.",
-    reimbursement: true
+    reimbursement: true,
+    link: "https://www.isc2.org/Certifications/CISSP",
   },
   {
     id: "4",
     title: "Google Cloud Certified - Professional Cloud Architect",
     provider: "Google Cloud",
     description: "Design, develop, and manage Google Cloud infrastructure.",
-    reimbursement: true
-  }
+    reimbursement: true,
+    link: "https://cloud.google.com/certification/cloud-architect",
+  },
 ];
 
 const Learning = () => {
-  // Filter courses by category
-  const technicalCourses = courses.filter(course => course.category === 'technical');
-  const professionalCourses = courses.filter(course => course.category === 'professional');
-  const complianceCourses = courses.filter(course => course.category === 'compliance');
-  const leadershipCourses = courses.filter(course => course.category === 'leadership');
-  
-  // Get enrolled courses
-  const enrolledCourses = courses.filter(course => course.enrolled);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filter courses by category and search term
+  const filterCourses = (category: string) => {
+    return courses.filter(
+      (course) =>
+        (category === "all" || course.category === category) &&
+        course.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  const technicalCourses = filterCourses("technical");
+  const professionalCourses = filterCourses("professional");
+  const complianceCourses = filterCourses("compliance");
+  const leadershipCourses = filterCourses("leadership");
+  const allCourses = filterCourses("all");
+  const enrolledCourses = courses.filter((course) => course.enrolled);
 
   return (
-   
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Learning & Development</h1>
-          <p className="text-muted-foreground">Professional growth and continuous learning resources</p>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold mb-2">Learning & Development</h1>
+        <p className="text-muted-foreground">Professional growth and continuous learning resources</p>
+      </div>
+
+      {/* Three boxes for Courses, Certifications, Skills */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="border rounded-lg p-4 bg-white shadow-sm">
+          <h3 className="font-medium text-lg mb-3">Courses</h3>
+          <Button
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            onClick={() =>
+              document.getElementById("courses-section")?.scrollIntoView({ behavior: "smooth" })
+            }
+          >
+            Open
+          </Button>
         </div>
-        
-        {enrolledCourses.length > 0 && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-securekloud-100 flex items-center justify-center">
-                  <BookOpen className="h-5 w-5 text-securekloud-700" />
-                </div>
-                <div>
-                  <CardTitle>My Learning</CardTitle>
-                  <CardDescription>Your enrolled courses and progress</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {enrolledCourses.map(course => (
-                  <div key={course.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-medium">{course.title}</h3>
-                      <Badge>
-                        {course.progress === 100 ? "Completed" : "In Progress"}
-                      </Badge>
-                    </div>
-                    <div className="mb-3">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-muted-foreground">Progress</span>
-                        <span>{course.progress}%</span>
-                      </div>
-                      <Progress value={course.progress} className="h-2" />
-                    </div>
-                    <Button size="sm">
-                      {course.progress === 100 ? "Review Course" : "Continue Learning"}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Find Courses</CardTitle>
-            <CardDescription>Search for training courses and learning resources</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="relative mb-6">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Search courses..." className="pl-8" />
-            </div>
-            
-            <Tabs defaultValue="all">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="all">All Courses</TabsTrigger>
-                <TabsTrigger value="technical">Technical</TabsTrigger>
-                <TabsTrigger value="professional">Professional</TabsTrigger>
-                <TabsTrigger value="compliance">Compliance</TabsTrigger>
-                <TabsTrigger value="leadership">Leadership</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="all" className="mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {courses.map(course => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="technical" className="mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {technicalCourses.map(course => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="professional" className="mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {professionalCourses.map(course => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="compliance" className="mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {complianceCourses.map(course => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="leadership" className="mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {leadershipCourses.map(course => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-        
-        <div>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-10 w-10 rounded-full bg-securekloud-100 flex items-center justify-center">
-              <Award className="h-5 w-5 text-securekloud-700" />
-            </div>
-            <h2 className="text-2xl font-bold">Professional Certifications</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {certifications.map(certification => (
-              <Card key={certification.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between">
-                    <CardTitle className="text-lg">{certification.title}</CardTitle>
-                    {certification.reimbursement && (
-                      <Badge variant="outline" className="bg-green-50 text-green-800">
-                        Reimbursable
-                      </Badge>
-                    )}
-                  </div>
-                  <CardDescription>{certification.provider}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">{certification.description}</p>
-                  <Button variant="outline" className="w-full">
-                    Learn More
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+        <div className="border rounded-lg p-4 bg-white shadow-sm">
+          <h3 className="font-medium text-lg mb-3">Certifications</h3>
+          <Button
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            onClick={() =>
+              document.getElementById("certifications-section")?.scrollIntoView({ behavior: "smooth" })
+            }
+          >
+            Open
+          </Button>
         </div>
-        
+        <div className="border rounded-lg p-4 bg-white shadow-sm">
+          <h3 className="font-medium text-lg mb-3">Skills</h3>
+          <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">Open</Button>
+        </div>
+      </div>
+
+      {/* My Learning Section (Uncommented) */}
+      {enrolledCourses.length > 0 && (
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-securekloud-100 flex items-center justify-center">
-                <Trophy className="h-5 w-5 text-securekloud-700" />
+              <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                <BookOpen className="h-5 w-5 text-purple-700" />
               </div>
               <div>
-                <CardTitle>Learning Resources</CardTitle>
-                <CardDescription>Additional resources to support your development</CardDescription>
+                <CardTitle>My Learning</CardTitle>
+                <CardDescription>Your enrolled courses and progress</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="border rounded-lg p-4">
-                <h3 className="font-medium mb-2">Learning Library</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Access e-books, videos, and articles on various subjects.
-                </p>
-                <Button variant="outline" size="sm">Browse Library</Button>
-              </div>
-              
-              <div className="border rounded-lg p-4">
-                <h3 className="font-medium mb-2">Tuition Reimbursement</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Learn about our program for continuing education support.
-                </p>
-                <Button variant="outline" size="sm">View Program</Button>
-              </div>
-              
-              <div className="border rounded-lg p-4">
-                <h3 className="font-medium mb-2">Mentorship Program</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Connect with experienced mentors in your field of interest.
-                </p>
-                <Button variant="outline" size="sm">Join Program</Button>
-              </div>
+            <div className="space-y-4">
+              {enrolledCourses.map((course) => (
+                <div key={course.id} className="border rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-medium">{course.title}</h3>
+                    <Badge>{course.progress === 100 ? "Completed" : "In Progress"}</Badge>
+                  </div>
+                  <div className="mb-3">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Progress</span>
+                      <span>{course.progress}%</span>
+                    </div>
+                    <Progress value={course.progress} className="h-2" />
+                  </div>
+                  <Button size="sm">
+                    {course.progress === 100 ? "Review Course" : "Continue Learning"}
+                  </Button>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Courses Section */}
+      <Card id="courses-section">
+        <CardHeader>
+          <CardTitle>Find Courses</CardTitle>
+          <CardDescription>Search for training courses and learning resources</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="relative mb-6">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search courses..."
+              className="pl-8"
+              aria-label="Search for training courses"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <Tabs defaultValue="all">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="all">All Courses</TabsTrigger>
+              <TabsTrigger value="technical">Technical</TabsTrigger>
+              <TabsTrigger value="professional">Professional</TabsTrigger>
+              <TabsTrigger value="compliance">Compliance</TabsTrigger>
+              <TabsTrigger value="leadership">Leadership</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all" className="mt-6">
+              {allCourses.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {allCourses.map((course) => (
+                    <CourseCard key={course.id} course={course} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center">No courses found.</p>
+              )}
+            </TabsContent>
+
+            <TabsContent value="technical" className="mt-6">
+              {technicalCourses.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {technicalCourses.map((course) => (
+                    <CourseCard key={course.id} course={course} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center">No courses found.</p>
+              )}
+            </TabsContent>
+
+            <TabsContent value="professional" className="mt-6">
+              {professionalCourses.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {professionalCourses.map((course) => (
+                    <CourseCard key={course.id} course={course} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center">No courses found.</p>
+              )}
+            </TabsContent>
+
+            <TabsContent value="compliance" className="mt-6">
+              {complianceCourses.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {complianceCourses.map((course) => (
+                    <CourseCard key={course.id} course={course} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center">No courses found.</p>
+              )}
+            </TabsContent>
+
+            <TabsContent value="leadership" className="mt-6">
+              {leadershipCourses.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {leadershipCourses.map((course) => (
+                    <CourseCard key={course.id} course={course} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center">No courses found.</p>
+              )}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Certifications Section */}
+      <div id="certifications-section">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+            <Award className="h-5 w-5 text-purple-700" />
+          </div>
+          <h2 className="text-2xl font-bold">Professional Certifications</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {certifications.map((certification) => (
+            <Card key={certification.id}>
+              <CardHeader className="pb-3">
+                <div className="flex justify-between">
+                  <CardTitle className="text-lg">{certification.title}</CardTitle>
+                  {certification.reimbursement && (
+                    <Badge variant="outline" className="bg-green-50 text-green-800">
+                      Reimbursable
+                    </Badge>
+                  )}
+                </div>
+                <CardDescription>{certification.provider}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">{certification.description}</p>
+                <a
+                  href={certification.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-block"
+                >
+                  <Button variant="outline" className="w-full">
+                    Learn More
+                  </Button>
+                </a>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-    
+    </div>
   );
 };
 
@@ -348,14 +384,10 @@ const CourseCard = ({ course }: CourseCardProps) => {
       <CardHeader className="pb-3">
         <div className="flex justify-between">
           {course.new && (
-            <Badge className="bg-securekloud-100 text-securekloud-800 hover:bg-securekloud-200">
-              New
-            </Badge>
+            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">New</Badge>
           )}
           {course.featured && (
-            <Badge variant="outline" className="bg-yellow-50 text-yellow-800">
-              Featured
-            </Badge>
+            <Badge variant="outline" className="bg-yellow-50 text-yellow-800">Featured</Badge>
           )}
           {!course.new && !course.featured && <div />}
           <Badge variant="outline">

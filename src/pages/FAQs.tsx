@@ -91,12 +91,12 @@ const FAQs = () => {
   return (
     
       <div className="space-y-8">
-        <div>
+        {/*<div>
           <h1 className="text-3xl font-bold mb-2">Frequently Asked Questions</h1>
           <p className="text-muted-foreground">Find answers to common questions about working at SecureKloud</p>
-        </div>
+        </div>*/}
         
-        <Card>
+       {/* <Card>
           <CardHeader>
             <CardTitle>Search FAQs</CardTitle>
             <CardDescription>Find answers quickly</CardDescription>
@@ -107,10 +107,10 @@ const FAQs = () => {
               <Input type="search" placeholder="Search frequently asked questions..." className="pl-8" />
             </div>
           </CardContent>
-        </Card>
+        </Card>*/}
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="col-span-1 md:col-span-3">
+          {/*<Card className="col-span-1 md:col-span-3">
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-securekloud-100 flex items-center justify-center">
@@ -131,9 +131,9 @@ const FAQs = () => {
                 ))}
               </Accordion>
             </CardContent>
-          </Card>
+          </Card>/*}
           
-          <Card>
+          {/*<Card>
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-full bg-securekloud-100 flex items-center justify-center">
@@ -203,9 +203,8 @@ const FAQs = () => {
               </Accordion>
               <Button variant="link" className="px-0 mt-2">View all Security FAQs</Button>
             </CardContent>
-          </Card>
+          </Card>*/}
         </div>
-        
         <Card>
           <CardHeader>
             <CardTitle>Didn't find what you're looking for?</CardTitle>

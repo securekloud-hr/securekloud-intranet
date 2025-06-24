@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Bell, User } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -12,20 +12,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function AppHeader() {
+export function AppHeader({ user }) {
+  const userName = user?.name || "User";
+  const initial = userName.charAt(0).toUpperCase();
+
   return (
     <header className="h-16 border-b flex items-center justify-between px-4 bg-white">
-     <div>
-  <img
-    src="/SecureKloud_Logo.jpg"
-    alt="SecureKloud Logo"
-    className="h-8 w-auto"
-  />
-
-
-{/* <h1 className="text-lg font-medium">SecureKloud Intranet</h1> */}
+      <div>
+        <img
+          src="/SecureKloud_Logo.jpg"
+          alt="SecureKloud Logo"
+          className="h-8 w-auto"
+        />
       </div>
-      
+
       <div className="flex items-center space-x-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -56,15 +56,14 @@ export function AppHeader() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center space-x-2" size="sm">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-skcloud-purple text-white"></AvatarFallback>
+                <AvatarFallback className="bg-skcloud-purple text-white">{initial}</AvatarFallback>
               </Avatar>
-              <span>profile</span>{/*need to change 
-              */}
+              <span>{userName}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -73,7 +72,14 @@ export function AppHeader() {
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                localStorage.removeItem("userId");
+                window.location.reload();
+              }}
+            >
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
