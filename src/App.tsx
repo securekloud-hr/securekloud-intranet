@@ -72,7 +72,7 @@ const App = () => {
                   <Route path="/jobs" element={<InternalJobs />} />
                   <Route path="/talent" element={<Talentacquisition />} />
                   <Route path="/org" element={<OrgStructure />} />
-                  <Route path="/performce" element={<Performance />} />
+                  <Route path="/performance" element={<Performance />} />
                   <Route
   path="/admin/add-announcement"
   element={<AdminAddAnnouncement user={user} />}
