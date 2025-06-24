@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, User, Users } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
@@ -60,10 +60,65 @@ const PersonCard = ({ person, color = 'bg-slate-600', size = 'small' }: { person
   );
 };
 
-// Your departments array is already loaded here:
-// const departments: Department[] = [...];
+const OrgStructure = () => {
+  const ceo: TeamMember = {
+    id: 'ceo',
+    name: 'Suresh Venkatachari',
+    title: 'CEO & CHAIRMAN',
+    email: 'suresh.venkatachari@company.com',
+    phone: '+1 (555) 123-4567'
+  };
 
-// Continue your existing logic after departments definition
-// such as useState, toggle logic, rendering DepartmentCard, etc.
+  const seniorEA: TeamMember = {
+    id: 'senior-ea',
+    name: 'Hemamalini',
+    title: 'Senior E.A',
+    email: 'hemamalini@company.com',
+    phone: '+1 (555) 234-5678'
+  };
 
-// Let me know if you want me to complete the rest of the logic/rendering part again.
+  return (
+    <div className="max-w-6xl mx-auto space-y-10 py-8 relative">
+      {/* CEO Card */}
+      <div className="flex justify-center relative">
+        <div className="relative z-10">
+          <PersonCard person={ceo} color="bg-blue-600" size="medium" />
+        </div>
+        {/* Horizontal Line under CEO */}
+        <div className="absolute top-full left-1/2 w-px h-12 bg-gray-300"></div>
+      </div>
+
+      {/* Senior EA aligned to right */}
+      <div className="flex justify-end pr-10">
+        <PersonCard person={seniorEA} color="bg-teal-500" size="small" />
+      </div>
+
+      {/* Placeholder: Department Grid (4 columns) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Example department heads */}
+        <PersonCard
+          person={{ id: 'ops', name: 'Murali', title: 'Director - Operations', email: '', phone: '' }}
+          color="bg-orange-500"
+          size="small"
+        />
+        <PersonCard
+          person={{ id: 'finance', name: 'Ramachandran S', title: 'CFO', email: '', phone: '' }}
+          color="bg-orange-500"
+          size="small"
+        />
+        <PersonCard
+          person={{ id: 'people', name: 'Siva Kumar', title: 'CDO / People & Culture', email: '', phone: '' }}
+          color="bg-orange-500"
+          size="small"
+        />
+        <PersonCard
+          person={{ id: 'cro', name: 'Venkateswaran K', title: 'CRO / WTD', email: '', phone: '' }}
+          color="bg-orange-500"
+          size="small"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default OrgStructure;
