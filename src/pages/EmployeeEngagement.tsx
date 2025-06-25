@@ -131,30 +131,28 @@ const EmployeeEngagement = () => {
   <DialogContent>
     <DialogHeader>
       <DialogTitle>{selectedBomEvent?.title || "Event Details"}</DialogTitle>
-    <DialogDescription>
+<DialogDescription>
   {selectedBomEvent?.details && selectedBomEvent.details.length > 0 ? (
     <div className="max-h-[600px] overflow-y-auto">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
         {selectedBomEvent.details.map((bd, index) => (
           <div
             key={index}
             className="flex flex-col items-center p-3 border rounded-lg shadow bg-white"
           >
-           <img
-  src={`/employee-images/${bd.employeeId}.jpg`}
-  alt={bd.name}
-  className="w-20 h-20 rounded-full object-cover mb-2"
-  onError={(e) => {
-    const currentSrc = e.currentTarget.src;
-
-    if (currentSrc.endsWith(".jpg")) {
-      e.currentTarget.src = `/employee-images/${bd.employeeId}.png`;
-    } else {
-      e.currentTarget.src = "/employee-images/default.png";
-    }
-  }}
-/>
-
+            <img
+              src={`/employee-images/${bd.employeeId}.jpg`}
+              alt={bd.name}
+              className="w-40 h-20 rounded-full object-cover mb-2"
+              onError={(e) => {
+                const currentSrc = e.currentTarget.src;
+                if (currentSrc.endsWith(".jpg")) {
+                  e.currentTarget.src = `/employee-images/${bd.employeeId}.png`;
+                } else {
+                  e.currentTarget.src = "/employee-images/default.png";
+                }
+              }}
+            />
             <p className="text-sm font-medium text-center">{bd.name}</p>
             <p className="text-xs text-gray-500">{bd.date}</p>
           </div>
@@ -165,7 +163,6 @@ const EmployeeEngagement = () => {
     <p>Failed to load birthdays. Check console for details.</p>
   )}
 </DialogDescription>
-
 
     </DialogHeader>
   </DialogContent>
@@ -408,13 +405,19 @@ details: [
 { name: "Diwakar N", date: "16/Jun", employeeId: "1045" },
 { name: "Pamulapati Kishore", date: "18/Jun", employeeId: "1046" },
 { name: "Venkata Siva Reddy M", date: "19/Jun", employeeId: "1047" },
+{ name: "Senthil Babu R S", date: "20/Jun", employeeId: "B20025" },
+
 { name: "Jayakumar Karuppasamy", date: "21/Jun", employeeId: "1048" },
 { name: "Dharanitharan Murugan", date: "21/Jun", employeeId: "1049" },
 { name: "Magalakshmi M", date: "22/Jun", employeeId: "1050" },
 { name: "Sowmiya R", date: "26/Jun", employeeId: "1051" },
+{ name: "Shalman M", date: "27/Jun", employeeId: "B22149" },
+
 { name: "Shanmugavel S", date: "28/Jun", employeeId: "1052" },
 { name: "Hariwasa S", date: "29/Jun", employeeId: "1053" },
-{ name: "Vaitheeshwaran J", date: "30/Jun", employeeId: "1054" }
+{ name: "Vaitheeshwaran J", date: "30/Jun", employeeId: "1054" },
+{ name: "Harini N k V", date: "30/Jun", employeeId: "B22085" },
+
 ]
 },
 {
@@ -461,6 +464,8 @@ type: "BOM-Birthdays of the Month",
 details: [
 { name: "Abirami Ravi", date: "2/Jul", employeeId: "1055" },
 { name: "Hemamalini K", date: "3/Jul", employeeId: "1056" },
+{ name: "Abdul Khadir A", date: "3/jul", employeeId: "B25008" },
+
 { name: "Veerendra Kumar Meka R", date: "5/Jul", employeeId: "1057" },
 { name: "Manikandan V", date: "10/Jul", employeeId: "1058" },
 { name: "Abhinandhan V", date: "11/Jul", employeeId: "1059" },
@@ -535,6 +540,8 @@ details: [
 { name: "Priyanka Pannerselvam", date: "17/Aug", employeeId: "1076" },
 { name: "Rajkumar P", date: "19/Aug", employeeId: "1077" },
 { name: "Pagadavarapu Dileep", date: "20/Aug", employeeId: "1078" },
+{ name: "Sachidanatham", date: "24/Aug", employeeId: "B22124" },
+
 { name: "Kameswaran R", date: "25/Aug", employeeId: "1079" }
 ]
 },
