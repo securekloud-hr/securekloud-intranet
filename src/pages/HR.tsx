@@ -68,7 +68,7 @@ const HR = () => {
 
   const team = [
     {
-      name: "Sivakumar Natarajan",
+      name: "Siva Kumar",
       role: "Head - People & Culture",
       email: "siva.kumar@securekloud.com",
       phone: "9940103400",

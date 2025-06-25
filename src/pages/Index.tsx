@@ -9,7 +9,7 @@ const Index = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-skcloud-dark-purple">Welcome to SecureKloud Intranet</h1>
+        <h1 className="text-3xl font-bold text-skcloud-dark-purple">Welcome to SecureKloud Hub</h1>
         <p className="text-muted-foreground mt-1">Your central hub for company resources and information</p>
       </div>
       
