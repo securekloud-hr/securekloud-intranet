@@ -115,31 +115,7 @@ pdfUrl: "/SK-InfoSec-Policy.docx",
 },
 ],
 },
-{
-name: "Finance Policies",
-policies: [
-/*{
-id: 9,
-title: "Travel and Expense Policy",
-updated: "May 05, 2025",
-},*/
-{
-id: 10,
-title: "Procurement Policy",
-updated: "Apr 12, 2025",
-},
-{
-id: 11,
-title: "Corporate Card Usage Policy",
-updated: "Mar 10, 2025",
-},
-{
-id: 12,
-title: "Financial Controls Policy",
-updated: "Feb 22, 2025",
-},
-],
-},
+/*finace */
 {
 name: "Admin Policies",
 policies: [
@@ -149,6 +125,22 @@ title: "Domestic Travel Policy & Process",
 updated: "Jun 01, 2025",
 pdfUrl: "/Domestic-Travel-Policy&ProcessV0.1(1).pdf",
 },
+{
+id: 10,
+title: "Procurement Policy-Admin",
+updated: "Apr 12, 2025",
+pdfUrl: "/Vendor-Procurement-Policy-Admin.pdf",
+
+},
+{
+id: 10,
+title: "Procurement Policy-IT",
+updated: "Apr 12, 2025",
+pdfUrl: "/Vendor-Procurement-Policy-IT.pdf",
+
+},
+
+
 {
 id: 6,
 title: "Expense Reimbursement Form",

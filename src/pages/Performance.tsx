@@ -43,7 +43,7 @@ const Performance = () => {
               </div>
             </CardContent>
           </Card>          
-          {/*performance 21.0000*/}
+          {/*performance d21.0000*/}
           <Card>
             <CardHeader>
               <CardTitle>Development Plan</CardTitle>
