@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,9 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function AppHeader({ user }) {
-  const userName = user?.name || "User";
-  const initial = userName.charAt(0).toUpperCase();
+interface User {
+  name?: string;
+  fullName?: string;
+}
+
+export function AppHeader({ user }: { user: User }) {
+  const initial = user?.name?.charAt?.(0)?.toUpperCase?.() || "U";
 
   return (
     <header className="h-16 border-b flex items-center justify-between px-4 bg-white">
@@ -36,24 +39,7 @@ export function AppHeader({ user }) {
           <DropdownMenuContent align="end" className="w-80">
             <DropdownMenuLabel>Notifications</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <div className="flex flex-col space-y-1">
-                <span className="font-medium">New holiday policy update</span>
-                <span className="text-xs text-muted-foreground">2 hours ago</span>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div className="flex flex-col space-y-1">
-                <span className="font-medium">Upcoming performance review</span>
-                <span className="text-xs text-muted-foreground">1 day ago</span>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div className="flex flex-col space-y-1">
-                <span className="font-medium">Internal job posting: Senior Developer</span>
-                <span className="text-xs text-muted-foreground">3 days ago</span>
-              </div>
-            </DropdownMenuItem>
+            <DropdownMenuItem>New update available</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -61,17 +47,20 @@ export function AppHeader({ user }) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center space-x-2" size="sm">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-skcloud-purple text-white">{initial}</AvatarFallback>
+                <AvatarFallback className="bg-skcloud-purple text-white">
+                  {initial}
+                </AvatarFallback>
               </Avatar>
-              <span>{userName}</span>
+              <div className="flex flex-col items-start text-left leading-tight">
+                <span className="font-medium">{user?.name || "Unknown"}</span>
+                <span className="text-sm text-muted-foreground">👤 {user?.fullName || "No info"}</span>
+              </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
                 localStorage.removeItem("userId");
