@@ -1,12 +1,35 @@
+﻿import React, { useState, useEffect } from "react";
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
-import { Lightbulb, BookOpen, Search, Clock, Award, Trophy } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Course {
   id: string;
@@ -17,11 +40,9 @@ interface Course {
   instructor: string;
   enrolled?: boolean;
   progress?: number;
-  featured?: boolean;
-  new?: boolean;
 }
 
-const courses: Course[] = [
+const baseCourses: Course[] = [
   {
     id: "1",
     title: "Cloud Security Fundamentals",
@@ -31,386 +52,313 @@ const courses: Course[] = [
     instructor: "David Chen",
     enrolled: true,
     progress: 75,
-    featured: true,
   },
   {
     id: "2",
-    title: "Advanced DevOps Practices",
-    category: "technical",
-    description: "Explore advanced DevOps methodologies and automation techniques.",
-    duration: "6 hours",
-    instructor: "Michelle Wong",
-    new: true,
-  },
-  {
-    id: "3",
     title: "Effective Communication Skills",
     category: "professional",
-    description: "Improve your verbal and written communication in the workplace.",
+    description: "Improve your communication skills.",
     duration: "3 hours",
     instructor: "James Wilson",
     enrolled: true,
     progress: 30,
   },
-  {
-    id: "4",
-    title: "Data Privacy Compliance",
-    category: "compliance",
-    description: "Understand data privacy regulations and compliance requirements.",
-    duration: "2 hours",
-    instructor: "Sarah Johnson",
-    enrolled: true,
-    progress: 100,
-  },
-  {
-    id: "5",
-    title: "Leadership in Tech",
-    category: "leadership",
-    description: "Develop essential leadership skills for technology professionals.",
-    duration: "5 hours",
-    instructor: "Robert Zhang",
-    featured: true,
-  },
-  {
-    id: "6",
-    title: "Kubernetes for Developers",
-    category: "technical",
-    description: "Learn how to deploy and manage applications in Kubernetes.",
-    duration: "8 hours",
-    instructor: "Emily Davis",
-    new: true,
-  },
-  {
-    id: "7",
-    title: "Project Management Essentials",
-    category: "professional",
-    description: "Master the fundamentals of effective project management.",
-    duration: "4 hours",
-    instructor: "Michael Brown",
-  },
-  {
-    id: "8",
-    title: "Information Security Awareness",
-    category: "compliance",
-    description: "Essential security awareness training for all employees.",
-    duration: "1 hour",
-    instructor: "Lisa Chen",
-    enrolled: true,
-    progress: 50,
-  },
 ];
 
-interface Certification {
-  id: string;
-  title: string;
-  provider: string;
-  description: string;
-  reimbursement?: boolean;
-  link: string;
-}
+const LearningDevelopment = () => {
+  const [skills, setSkills] = useState<string[]>([]);
+  const [certifications, setCertifications] = useState<{ title: string; provider: string }[]>([]);
+  const [courses, setCourses] = useState<Course[]>([...baseCourses]);
 
-const certifications: Certification[] = [
-  {
-    id: "1",
-    title: "AWS Certified Solutions Architect",
-    provider: "Amazon Web Services",
-    description: "Design and deploy distributed systems on AWS.",
-    reimbursement: true,
-    link: "https://aws.amazon.com/training/",
-  },
-  {
-    id: "2",
-    title: "Microsoft Azure Administrator",
-    provider: "Microsoft",
-    description: "Implement, monitor, and maintain Microsoft Azure solutions.",
-    reimbursement: true,
-    link: "https://learn.microsoft.com/en-us/certifications/azure-administrator/",
-  },
-  {
-    id: "3",
-    title: "Certified Information Systems Security Professional (CISSP)",
-    provider: "ISC²",
-    description: "Security expertise across a broad range of domains.",
-    reimbursement: true,
-    link: "https://www.isc2.org/Certifications/CISSP",
-  },
-  {
-    id: "4",
-    title: "Google Cloud Certified - Professional Cloud Architect",
-    provider: "Google Cloud",
-    description: "Design, develop, and manage Google Cloud infrastructure.",
-    reimbursement: true,
-    link: "https://cloud.google.com/certification/cloud-architect",
-  },
-];
-
-const Learning = () => {
+  const [newSkill, setNewSkill] = useState("");
+  const [newCert, setNewCert] = useState({ title: "", provider: "" });
+  const [newCourse, setNewCourse] = useState({ title: "", instructor: "", duration: "", category: "technical" as const });
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filter courses by category and search term
-  const filterCourses = (category: string) => {
-    return courses.filter(
+  const [openSkill, setOpenSkill] = useState(false);
+  const [openManualCert, setOpenManualCert] = useState(false);
+  const [openCourse, setOpenCourse] = useState(false);
+
+  const [skillError, setSkillError] = useState("");
+  const [certError, setCertError] = useState("");
+  const [courseError, setCourseError] = useState("");
+
+  const [isCertDialogVisible, setIsCertDialogVisible] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState("");
+  const [selectedCertificate, setSelectedCertificate] = useState("");
+
+  const providers = {
+    "AWS": ["AWS Certified Cloud Practitioner", "AWS Certified Solutions Architect", "AWS Certified Developer"],
+    "Microsoft Azure": ["Azure Fundamentals", "Azure Administrator", "Azure Developer"],
+    "Google Cloud": ["Associate Cloud Engineer", "Professional Cloud Architect", "Professional Data Engineer"],
+    "Python": ["PCEP - Certified Entry-Level Python Programmer", "PCAP - Certified Associate in Python Programming"],
+    "Udemy": ["100 Days of Code: The Complete Python Pro Bootcamp", "Ultimate AWS Certified Solutions Architect Associate"],
+    "Coursera": ["Google IT Support Professional Certificate", "IBM Data Science Professional Certificate"]
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [skillsResp, certsResp, coursesResp] = await Promise.all([
+          fetch('http://192.168.26.103:8000/api/skills/mukund'),
+          fetch('http://localhost:8000/api/certificates/mukund'),
+          fetch('http://localhost:8000/api/courses/mukund'),
+          fetch('http://localhost:8000/api/courses/mukund'),
+        ]);
+        const [skillsData, certsData, coursesData] = await Promise.all([
+          skillsResp.json(),
+          certsResp.json(),
+          coursesResp.json(),
+        ]);
+        if (skillsResp.ok) setSkills(skillsData.map((s: any) => s.skillName));
+        if (certsResp.ok) setCertifications(certsData.map((c: any) => ({ title: c.title, provider: c.provider })));
+        if (coursesResp.ok) setCourses(coursesData);
+      } catch (err) {
+        console.error("Fetch Error:", err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const enrolledCourses = courses.filter((c) => c.enrolled);
+  const filterCourses = (category: string) =>
+    courses.filter(
       (course) =>
         (category === "all" || course.category === category) &&
         course.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  };
 
-  const technicalCourses = filterCourses("technical");
-  const professionalCourses = filterCourses("professional");
-  const complianceCourses = filterCourses("compliance");
-  const leadershipCourses = filterCourses("leadership");
-  const allCourses = filterCourses("all");
-  const enrolledCourses = courses.filter((course) => course.enrolled);
+  const addSkill = async () => {
+  const trimmed = newSkill.trim();
+  if (!trimmed) return setSkillError("Skill cannot be empty");
+  if (skills.includes(trimmed)) return setSkillError("Skill already exists");
+  try {
+    const response = await fetch("http://localhost:8000/api/add-skill", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: "mukund", skillName: trimmed }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setSkills([...skills, trimmed]);
+      setNewSkill("");
+      setSkillError("");
+      setOpenSkill(false);
+
+      // 📧 Send email notification
+      await fetch("http://localhost:8000/api/sendSkillNotification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skill: trimmed, user: "mukund" }),
+      });
+    } else {
+      setSkillError(data.error || "Failed to add skill");
+    }
+  } catch (err) {
+    setSkillError("Network error, please try again");
+  }
+};
+
+
+ const handleAddCertificationFromDialog = async () => {
+  if (!selectedProvider || !selectedCertificate) {
+    setCertError("Please select both provider and certificate");
+    return;
+  }
+  if (certifications.some((c) => c.title === selectedCertificate && c.provider === selectedProvider))
+    return setCertError("This certification already exists");
+  try {
+    const response = await fetch("http://localhost:8000/api/add-certificate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: "mukund", title: selectedCertificate, provider: selectedProvider }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setCertifications([...certifications, { title: selectedCertificate, provider: selectedProvider }]);
+      setSelectedProvider("");
+      setSelectedCertificate("");
+      setIsCertDialogVisible(false);
+      setCertError("");
+
+      // 📧 Send email notification
+      await fetch("http://localhost:8000/api/sendCertificationNotification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ certification: selectedCertificate, provider: selectedProvider, user: "mukund" }),
+      });
+    } else {
+      setCertError(data.error || "Failed to add certificate");
+    }
+  } catch (err) {
+    setCertError("Network error, please try again");
+  }
+};
+
+ const addCourse = async () => {
+  const { title, instructor, duration, category } = newCourse;
+  if (!title.trim() || !instructor.trim() || !duration.trim()) return setCourseError("All fields required");
+  if (courses.some((c) => c.title === title)) return setCourseError("Course already exists");
+  try {
+    const response = await fetch("http://localhost:8000/api/add-course", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: "mukund", title, instructor, duration, category }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setCourses([
+        ...courses,
+        { id: String(courses.length + 1), title, instructor, duration, description: "Newly added course", category, enrolled: false, progress: 0 },
+      ]);
+      setNewCourse({ title: "", instructor: "", duration: "", category: "technical" });
+      setOpenCourse(false);
+      setCourseError("");
+
+      // 📧 Send email notification
+      // 📧 Send email notification
+await fetch("http://localhost:8000/api/sendCourseNotification", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    title,
+    instructor,
+    duration,
+    category,
+    user: "mukund",
+  }),
+});
+
+    } else {
+      setCourseError(data.error || "Failed to add course");
+    }
+  } catch (err) {
+    setCourseError("Network error, please try again");
+  }
+};
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Learning & Development</h1>
-        <p className="text-muted-foreground">Professional growth and continuous learning resources</p>
-      </div>
+    <div className="space-y-8 p-4">
+      <h1 className="text-3xl font-bold">Learning & Development</h1>
 
-      {/* Three boxes for Courses, Certifications, Skills */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="border rounded-lg p-4 bg-white shadow-sm">
-          <h3 className="font-medium text-lg mb-3">Courses</h3>
-          <Button
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-            onClick={() =>
-              document.getElementById("courses-section")?.scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            Open
-          </Button>
-        </div>
-        <div className="border rounded-lg p-4 bg-white shadow-sm">
-          <h3 className="font-medium text-lg mb-3">Certifications</h3>
-          <Button
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-            onClick={() =>
-              document.getElementById("certifications-section")?.scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            Open
-          </Button>
-        </div>
-        <div className="border rounded-lg p-4 bg-white shadow-sm">
-          <h3 className="font-medium text-lg mb-3">Skills</h3>
-          <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">Open</Button>
-        </div>
-      </div>
-
-      {/* My Learning Section (Uncommented) */}
-      {enrolledCourses.length > 0 && (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                <BookOpen className="h-5 w-5 text-purple-700" />
-              </div>
-              <div>
-                <CardTitle>My Learning</CardTitle>
-                <CardDescription>Your enrolled courses and progress</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
+          <CardHeader><CardTitle>Skills</CardTitle></CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {enrolledCourses.map((course) => (
-                <div key={course.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium">{course.title}</h3>
-                    <Badge>{course.progress === 100 ? "Completed" : "In Progress"}</Badge>
-                  </div>
-                  <div className="mb-3">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">Progress</span>
-                      <span>{course.progress}%</span>
-                    </div>
-                    <Progress value={course.progress} className="h-2" />
-                  </div>
-                  <Button size="sm">
-                    {course.progress === 100 ? "Review Course" : "Continue Learning"}
-                  </Button>
-                </div>
-              ))}
-            </div>
+            <ul className="list-disc list-inside mb-3">
+              {skills.map((s, i) => <li key={i}>{s}</li>)}
+            </ul>
+            <Button className="w-full bg-purple-600 text-white" onClick={() => setOpenSkill(true)}>+ Add Skill</Button>
           </CardContent>
         </Card>
-      )}
 
-      {/* Courses Section */}
-      <Card id="courses-section">
-        <CardHeader>
-          <CardTitle>Find Courses</CardTitle>
-          <CardDescription>Search for training courses and learning resources</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="relative mb-6">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search courses..."
-              className="pl-8"
-              aria-label="Search for training courses"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+        <Card>
+          <CardHeader><CardTitle>Certifications</CardTitle></CardHeader>
+          <CardContent>
+            <ul className="list-disc list-inside mb-3">
+              {certifications.map((c, i) => <li key={i}>{c.title} - {c.provider}</li>)}
+            </ul>
+            <Button className="w-full bg-purple-600 text-white" onClick={() => setIsCertDialogVisible(true)}>+ Add Certification</Button>
+          </CardContent>
+        </Card>
 
-          <Tabs defaultValue="all">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="all">All Courses</TabsTrigger>
-              <TabsTrigger value="technical">Technical</TabsTrigger>
-              <TabsTrigger value="professional">Professional</TabsTrigger>
-              <TabsTrigger value="compliance">Compliance</TabsTrigger>
-              <TabsTrigger value="leadership">Leadership</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="all" className="mt-6">
-              {allCourses.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {allCourses.map((course) => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center">No courses found.</p>
-              )}
-            </TabsContent>
-
-            <TabsContent value="technical" className="mt-6">
-              {technicalCourses.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {technicalCourses.map((course) => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center">No courses found.</p>
-              )}
-            </TabsContent>
-
-            <TabsContent value="professional" className="mt-6">
-              {professionalCourses.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {professionalCourses.map((course) => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center">No courses found.</p>
-              )}
-            </TabsContent>
-
-            <TabsContent value="compliance" className="mt-6">
-              {complianceCourses.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {complianceCourses.map((course) => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center">No courses found.</p>
-              )}
-            </TabsContent>
-
-            <TabsContent value="leadership" className="mt-6">
-              {leadershipCourses.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {leadershipCourses.map((course) => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center">No courses found.</p>
-              )}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* Certifications Section */}
-      <div id="certifications-section">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-            <Award className="h-5 w-5 text-purple-700" />
-          </div>
-          <h2 className="text-2xl font-bold">Professional Certifications</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {certifications.map((certification) => (
-            <Card key={certification.id}>
-              <CardHeader className="pb-3">
-                <div className="flex justify-between">
-                  <CardTitle className="text-lg">{certification.title}</CardTitle>
-                  {certification.reimbursement && (
-                    <Badge variant="outline" className="bg-green-50 text-green-800">
-                      Reimbursable
-                    </Badge>
-                  )}
-                </div>
-                <CardDescription>{certification.provider}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">{certification.description}</p>
-                <a
-                  href={certification.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full inline-block"
-                >
-                  <Button variant="outline" className="w-full">
-                    Learn More
-                  </Button>
-                </a>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Card>
+          <CardHeader><CardTitle>Courses</CardTitle></CardHeader>
+          <CardContent>
+            <ul className="list-disc list-inside mb-3">
+              {courses.map((c, i) => <li key={i}>{c.title} - {c.instructor}</li>)}
+            </ul>
+            <Button className="w-full bg-purple-600 text-white" onClick={() => setOpenCourse(true)}>+ Add Course</Button>
+          </CardContent>
+        </Card>
       </div>
+
+      <Dialog open={openSkill} onOpenChange={setOpenSkill}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Skill</DialogTitle>
+            <DialogDescription>Enter the skill name and click Add to save.</DialogDescription>
+          </DialogHeader>
+          <Input placeholder="Skill" value={newSkill} onChange={(e) => { setNewSkill(e.target.value); setSkillError(""); }} />
+          {skillError && <p className="text-red-500 text-sm mt-2">{skillError}</p>}
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setOpenSkill(false)}>Cancel</Button>
+            <Button onClick={addSkill}>Add</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openCourse} onOpenChange={setOpenCourse}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Course</DialogTitle>
+            <DialogDescription>Fill out course details and click Add.</DialogDescription>
+          </DialogHeader>
+          <Input placeholder="Title" value={newCourse.title} onChange={(e) => { setNewCourse({ ...newCourse, title: e.target.value }); setCourseError(""); }} />
+          <Input placeholder="Instructor" value={newCourse.instructor} onChange={(e) => { setNewCourse({ ...newCourse, instructor: e.target.value }); setCourseError(""); }} />
+          <Input placeholder="Duration" value={newCourse.duration} onChange={(e) => { setNewCourse({ ...newCourse, duration: e.target.value }); setCourseError(""); }} />
+          {courseError && <p className="text-red-500 text-sm mt-2">{courseError}</p>}
+          <Select value={newCourse.category} onValueChange={(value) => setNewCourse({ ...newCourse, category: value as Course["category"] })}>
+            <SelectTrigger className="w-full mt-2">
+              <SelectValue placeholder="Select Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="technical">Technical</SelectItem>
+              <SelectItem value="professional">Professional</SelectItem>
+              <SelectItem value="compliance">Compliance</SelectItem>
+              <SelectItem value="leadership">Leadership</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setOpenCourse(false)}>Cancel</Button>
+            <Button onClick={addCourse}>Add</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isCertDialogVisible} onOpenChange={setIsCertDialogVisible}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Certification</DialogTitle>
+            <DialogDescription>Select a provider and certificate.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right">Provider</label>
+              <Select onValueChange={(v) => { setSelectedProvider(v); setCertError(""); }} value={selectedProvider}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a Provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(providers).map(provider => (
+                    <SelectItem key={provider} value={provider}>{provider}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right">Certificates</label>
+              <Select onValueChange={(v) => { setSelectedCertificate(v); setCertError(""); }} value={selectedCertificate} disabled={!selectedProvider}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a Certificate" />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectedProvider && providers[selectedProvider]?.map(cert => (
+                    <SelectItem key={cert} value={cert}>{cert}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          {certError && <p className="text-red-500 text-sm mt-2">{certError}</p>}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsCertDialogVisible(false)}>Cancel</Button>
+            <Button onClick={handleAddCertificationFromDialog}>Add</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-interface CourseCardProps {
-  course: Course;
-}
-
-const CourseCard = ({ course }: CourseCardProps) => {
-  return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between">
-          {course.new && (
-            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">New</Badge>
-          )}
-          {course.featured && (
-            <Badge variant="outline" className="bg-yellow-50 text-yellow-800">Featured</Badge>
-          )}
-          {!course.new && !course.featured && <div />}
-          <Badge variant="outline">
-            {course.category.charAt(0).toUpperCase() + course.category.slice(1)}
-          </Badge>
-        </div>
-        <div className="mt-3">
-          <CardTitle>{course.title}</CardTitle>
-          <CardDescription>{course.instructor}</CardDescription>
-        </div>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
-        <p className="text-sm text-muted-foreground mb-4 flex-1">{course.description}</p>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-          <Clock className="h-4 w-4" />
-          <span>{course.duration}</span>
-        </div>
-        <Button className="w-full mt-auto">
-          {course.enrolled ? "Continue Learning" : "Enroll Now"}
-        </Button>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default Learning;
+export default LearningDevelopment;

@@ -2,9 +2,52 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Users, Trophy, Heart } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
+interface EventPhotoGalleryProps {
+  photos: string[];
+  eventName: string;
+}
+
+const EventPhotoGallery = ({ photos, eventName }: EventPhotoGalleryProps) => {
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {photos.map((photo, idx) => (
+          <Card
+            key={idx}
+            className="overflow-hidden rounded-2xl shadow hover:shadow-lg transition cursor-pointer"
+            onClick={() => setSelectedPhoto(photo)}
+          >
+            <CardContent className="p-0">
+              <img
+                src={photo}
+                alt={`${eventName} ${idx + 1}`}
+                className="object-cover w-full h-48 hover:scale-105 transition-transform duration-300"
+              />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Lightbox Modal */}
+      <Dialog open={!!selectedPhoto} onOpenChange={() => setSelectedPhoto(null)}>
+        <DialogContent className="max-w-4xl">
+          {selectedPhoto && (
+            <img
+              src={selectedPhoto}
+              alt="Selected Event"
+              className="w-full h-auto rounded-xl"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
 interface Event {
   id: string;
   title: string;
@@ -14,24 +57,45 @@ interface Event {
   type: 'Wellness' | 'Holidays/Festivals' | 'Sports/Entertainment' | 'BOM-Birthdays of the Month';
   registrationOpen?: boolean;
   images?: string[];
+  folder?: string;       // 👈 add this
+  imageCount?: number;   // 👈 add this
   details?: { name: string; date: string }[];
 }
 
+
 const EmployeeEngagement = () => {
-  const today = new Date();
-  const upcomingEvents = events.filter(event => new Date(event.date) >= today);
-  const pastEvents = events.filter(event => new Date(event.date) < today);
+  // ✅ All hooks first
+const [activeSection, setActiveSection] = useState('upcoming');
+const [activeCategory, setActiveCategory] = useState('all');
+const [dynamicPastEvents, setDynamicPastEvents] = useState<Partial<Event>[]>([]);
+const [selectedPastEvent, setSelectedPastEvent] = useState<Partial<Event> | null>(null);
+const [selectedBomEvent, setSelectedBomEvent] = useState<Event | null>(null); // 👈 added this
 
-  const [activeSection, setActiveSection] = useState('upcoming');
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [selectedPastEvent, setSelectedPastEvent] = useState<Event | null>(null);
-  const [selectedBomEvent, setSelectedBomEvent] = useState<Event | null>(null);
-
-  const filteredEvents = activeSection === 'upcoming'
-    ? activeCategory === 'all'
+// ✅ Then computed variables
+const today = new Date();
+const upcomingEvents = events.filter(event => new Date(event.date) >= today);
+const filteredEvents =
+  activeSection === "upcoming"
+    ? activeCategory === "all"
       ? upcomingEvents
       : upcomingEvents.filter(event => event.type === activeCategory)
-    : pastEvents;
+    : [];
+
+
+  useEffect(() => {
+  if (activeSection === "past") {
+    fetch("http://192.168.26.103:8000/api/past-events")
+      .then(res => res.json())
+      .then(data => setDynamicPastEvents(data))
+      .catch(err => {
+        console.error("Error fetching past events:", err);
+        setDynamicPastEvents([]);
+      });
+  }
+}, [activeSection]);
+
+
+  
 
   return (
     <div className="space-y-8">
@@ -46,6 +110,9 @@ const EmployeeEngagement = () => {
             <Calendar className="h-5 w-5 text-securekloud-700" />
           </div>
           <h2 className="text-2xl font-bold">Events</h2>
+
+
+
         </div>
 
         <div className="flex gap-4 mt-4">
@@ -82,41 +149,39 @@ const EmployeeEngagement = () => {
         {activeSection === 'past' ? (
           <div className="mt-6">
             <label htmlFor="past-events" className="block font-medium mb-2">Past Events</label>
-            <select
-              id="past-events"
-              className="w-full p-2 border rounded"
-              onChange={(e) => {
-                const selectedEventId = e.target.value;
-                const selected = pastEvents.find(ev => ev.id === selectedEventId);
-                setSelectedPastEvent(selected || null);
-              }}
-            >
-              <option value="">-- Select a past event --</option>
-              {pastEvents.map(event => (
-                <option key={event.id} value={event.id}>
-                  {event.title} ({event.date})
-                </option>
-              ))}
-            </select>
+           <select
+  id="past-events"
+  className="w-full p-2 border rounded"
+  onChange={(e) => {
+    const selectedEventId = e.target.value;
+    const selected = dynamicPastEvents.find(ev => ev.id === selectedEventId) || null;
+    setSelectedPastEvent(selected);
+  }}
+>
+  <option value="">-- Select a past event --</option>
+  {dynamicPastEvents.map(event => (
+    <option key={event.id} value={event.id}>
+      {event.title}
+    </option>
+  ))}
+</select>
+
+            
             {selectedPastEvent && (
-              <div className="mt-4">
-                <h3 className="text-xl font-semibold mb-2">{selectedPastEvent.title} Photos</h3>
-                {selectedPastEvent.images ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {selectedPastEvent.images.map((img, index) => (
-                      <img
-                        key={index}
-                        src={img}
-                        alt={`Event ${index + 1}`}
-                        className="w-full h-48 object-cover rounded shadow"
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">No images available for this event.</p>
-                )}
-              </div>
-            )}
+  <div className="mt-4">
+    <h3 className="text-xl font-semibold mb-2">{selectedPastEvent.title} Photos</h3>
+    {selectedPastEvent.images && selectedPastEvent.images.length > 0 ? (
+      <EventPhotoGallery
+        photos={selectedPastEvent.images as string[]}
+        eventName={selectedPastEvent.title as string}
+      />
+    ) : (
+      <p className="text-muted-foreground">No images available for this event.</p>
+    )}
+  </div>
+)}
+
+
           </div>
         ) : (
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -222,17 +287,47 @@ const EventCard = ({ event, onViewDetails }: EventCardProps) => {
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">{event.description}</p>
-        <Button
-          className="w-full"
-          onClick={() => {
-            if (event.type === 'BOM-Birthdays of the Month') {
-              console.log("Attempting to show:", event.title, event.details);
-              onViewDetails(event);
-            }
-          }}
-        >
-          {event.registrationOpen ? "Register Now" : "View Details"}
-        </Button>
+        <div className="flex gap-2 mt-4">
+  {event.registrationOpen && (
+    <Button
+      className="flex-1"
+      onClick={async () => {
+        try {
+          const res = await fetch("http://192.168.26.103:8000/api/registerEvent/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              eventId: event.id,
+              eventName: event.title,
+              user: "Current User", // replace with real user
+              email: "user@example.com" // replace with real email
+            }),
+          });
+          if (res.ok) {
+            alert(`Successfully registered for ${event.title}`);
+          } else {
+            alert("Failed to register. Please try again.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Error while registering.");
+        }
+      }}
+    >
+      Register Now
+    </Button>
+  )}
+
+  <Button
+    className="flex-1"
+    variant="outline"
+    onClick={() => onViewDetails(event)}
+  >
+    View Details
+  </Button>
+</div>
+
+
       </CardContent>
     </Card>
   );
@@ -241,43 +336,9 @@ const EventCard = ({ event, onViewDetails }: EventCardProps) => {
 export default EmployeeEngagement;
 
 const events: Event[] = [
- {
-id: "1",
-title: "Life Balance on Work-from-Home Session",
-date: "April 10, 2025",
-location: "",
-description: "Session on maintaining work-life balance while working from home.",
-type: "Wellness",
-registrationOpen: true
-},
-{
-id: "2",
-title: "Tamil New Year's Day",
-date: "April 15, 2025",
-location: "",
-description: "Celebration of the traditional Tamil New Year.",
-type: "Holidays/Festivals",
-images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
-]
-},
-{
-id: "3",
-title: "Carrom Competition",
-date: "April 18, 2025",
-location: "",
-description: "Carrom tournament for employees.",
-type: "Sports/Entertainment",
-registrationOpen: true,
-images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg"
-]
-},
+ 
+
+
 {
 id: "4",
 title: "BOM: April Birthdays",
@@ -299,32 +360,8 @@ details: [
 { name: "Kowsalya Palanisamy", date: "25/Apr", employeeId: "1011" }
 ]
 },
-{
-id: "5",
-title: "Yoga Session",
-date: "May 23, 2025",
-location: "",
-description: "Yoga session for employee wellness.",
-type: "Wellness",
-registrationOpen: true
-},
-{
-id: "6",
-title: "Summer Kickoff Day",
-date: "May 2, 2025",
-location: "",
-description: "Celebrating the start of summer with fun activities.",
-type: "Holidays/Festivals"
-},
-{
-id: "7",
-title: "Chess Competition",
-date: "May 16, 2025",
-location: "",
-description: "Chess tournament for employees.",
-type: "Sports/Entertainment",
-registrationOpen: true
-},
+
+
 {
 id: "8",
 title: "BOM: May Birthdays",
@@ -356,32 +393,10 @@ details: [
 { name: "Nandraj Rathod", date: "26/May", employeeId: "1032" }
 ]
 },
-{
-id: "9",
-title: "Wellness Boot Camp",
-date: "June 18, 2025",
-location: "",
-description: "General health check-up for employees.",
-type: "Wellness",
-registrationOpen: true
-},
-{
-id: "10",
-title: "Leave the Office Early Day",
-date: "June 2, 2025",
-location: "",
-description: "Employees can leave early to enjoy the day.",
-type: "Holidays/Festivals"
-},
-{
-id: "11",
-title: "Outdoor Cricket Tournament",
-date: "June 14, 2025",
-location: "",
-description: "Cricket tournament for employees.",
-type: "Sports/Entertainment",
-registrationOpen: true
-},
+
+
+
+
 {
 id: "12",
 title: "BOM: June Birthdays",
@@ -420,39 +435,8 @@ details: [
 
 ]
 },
-{
-id: "13",
-title: "Session on Values & Clarity in Life",
-date: "July 18, 2025",
-location: "",
-description: "Workshop on personal values and clarity.",
-type: "Wellness",
-registrationOpen: true
-},
-{
-id: "14",
-title: "Fitness Session",
-date: "July 1, 2025",
-location: "",
-description: "Fitness activities for employees.",
-type: "Holidays/Festivals"
-},
-{
-id: "15",
-title: "World Chocolate Day",
-date: "July 7, 2025",
-location: "",
-description: "Celebrating World Chocolate Day with treats.",
-type: "Holidays/Festivals"
-},
-{
-id: "16",
-title: "Int'l Joke Day",
-date: "July 1, 2025",
-location: "",
-description: "Sharing jokes to lighten the mood.",
-type: "Holidays/Festivals"
-},
+
+
 
 {
 id: "17",
@@ -610,7 +594,7 @@ details: [
 { name: "Vinni blessi Joice P", date: "6/Oct", employeeId: "1090" },
 { name: "Gunaselvam E", date: "7/Oct", employeeId: "1091" },
 { name: "Swetha R", date: "9/Oct", employeeId: "1092" },
-{ name: "Krishnakumar V", date: "10/Oct", employeeId: "1093" },
+{ name: "Krishnakumar V", date: "10/Oct",employeeId: "1093" },
 { name: "Kumar A", date: "13/Oct", employeeId: "1094" },
 { name: "Ashwinkumar R", date: "15/Oct", employeeId: "1095" },
 { name: "Riswana Fathima M S", date: "15/Oct", employeeId: "1096" },
@@ -887,20 +871,6 @@ details: [
 { name: "Bijeta Dubey", date: "31/Mar", employeeId: "1161" }
 ]
 },
-{
-id: "54",
-title: "bone check up ",
-date: "March 15, 2025",
-location: "",
-description: "bone check up.",
-type: "Holidays/Festivals",
-images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
-]
-},    
  {
 id: "55",
 title: "Emp Engagement: Carrom & Chess Tournament ",
@@ -912,7 +882,12 @@ images: [
 "/carrom-competition-april-2025/4.jpg",
 "/carrom-competition-april-2025/2.jpg",
 "/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
+"/carrom-competition-april-2025/1.jpg",
+"/carrom-competition-april-2025/5.jpg",
+"/carrom-competition-april-2025/6.jpg",
+"/carrom-competition-april-2025/7.jpg",
+"/carrom-competition-april-2025/8.jpg"
+
 ]
 }, 
 {
@@ -923,10 +898,18 @@ location: "",
 description: "SK Cricket League",
 type: "Holidays/Festivals",
 images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
+"/skcl2023/1.jpg",
+"/skcl2023/2.jpg",
+"/skcl2023/3.jpg",
+"/skcl2023/4.jpg",
+"/skcl2023/5.jpg",
+"/skcl2023/6.jpg",
+"/skcl2023/7.jpg",
+"/skcl2023/8.jpg",
+"/skcl2023/9.jpg",
+"/skcl2023/10.jpg",
+
+
 ]
 },  
 {
@@ -937,40 +920,17 @@ location: "",
 description: " Independence day 2023.",
 type: "Holidays/Festivals",
 images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
+"/Independence-Day-2023/1.png",
+"/Independence-Day-2023/2.png",
+"/Independence-Day-2023/3.png",
+"/Independence-Day-2023/4.png",
+"/Independence-Day-2023/5.png",
+"/Independence-Day-2023/6.png",
+"/Independence-Day-2023/7.jpg",
+"/Independence-Day-2023/8.png"
+
 ]
-},  
-{
-id: "57",
-title: " Independence day 2023 ",
-date: "March 16, 2025",
-location: "",
-description: " Independence day 2023.",
-type: "Holidays/Festivals",
-images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
-]
-},  
-{
-id: "57",
-title: " Independence day 2023 ",
-date: "March 16, 2025",
-location: "",
-description: " Independence day 2023.",
-type: "Holidays/Festivals",
-images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
-]
-},  
+},
 {
 id: "58",
 title: " Navratri Celebration, ",
@@ -979,10 +939,16 @@ location: "",
 description: " Navratri Celebration-2023,.",
 type: "Holidays/Festivals",
 images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
+  "/Navratri-Celebration-2023/1.jpg",
+  "/Navratri-Celebration-2023/2.jpg",
+  "/Navratri-Celebration-2023/3.png",
+  "/Navratri-Celebration-2023/4.png",
+  "/Navratri-Celebration-2023/5.JPG",
+  "/Navratri-Celebration-2023/6.jpg",
+  "/Navratri-Celebration-2023/7.JPG",
+  "/Navratri-Celebration-2023/8.jpg",
+  "/Navratri-Celebration-2023/9.jpg",
+  "/Navratri-Celebration-2023/10.jpg"
 ]
 },  
 {
@@ -993,10 +959,18 @@ location: "",
 description: " Onam 2023.",
 type: "Holidays/Festivals",
 images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
+  "/onam-2023/1.jpg",
+  "/onam-2023/2.JPG",
+  "/onam-2023/3.JPG",
+  "/onam-2023/4.JPG",
+  "/onam-2023/5.JPG",
+  "/onam-2023/6.JPG",
+  "/onam-2023/7.JPG",
+  "/onam-2023/8.JPG",
+  "/onam-2023/9.JPG",
+  "/onam-2023/10.JPG",
+  "/onam-2023/11.jpg",
+  "/onam-2023/12.jpg"
 ]
 },  
 {
@@ -1007,10 +981,16 @@ location: "",
 description: " Diwali Celebration_2023.",
 type: "Holidays/Festivals",
 images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
+  "/Diwali-2023/1.JPG",
+  "/Diwali-2023/2.JPG",
+  "/Diwali-2023/3.JPG",
+  "/Diwali-2023/4.JPG",
+  "/Diwali-2023/5.JPG",
+  "/Diwali-2023/6.JPG",
+  "/Diwali-2023/7.JPG",
+  "/Diwali-2023/8.JPG",
+  "/Diwali-2023/9.jpg",
+  "/Diwali-2023/10.PNG"
 ]
 }, 
 {
@@ -1021,10 +1001,17 @@ location: "",
 description: " Halloween 2023.",
 type: "Holidays/Festivals",
 images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
+  "/Halloween-2023/1.JPG",
+  "/Halloween-2023/2.JPG",
+  "/Halloween-2023/3.JPG",
+  "/Halloween-2023/4.jpg",
+  "/Halloween-2023/5.jpg",
+  "/Halloween-2023/6.jpg",
+  "/Halloween-2023/7.jpg",
+  "/Halloween-2023/8.jpeg",
+  "/Halloween-2023/9.jpeg",
+  "/Halloween-2023/10.jpeg",
+  "/Halloween-2023/11.jpg"
 ]
 },  
 {
@@ -1035,26 +1022,33 @@ location: "",
 description: " Christmas Celebration -2023.",
 type: "Holidays/Festivals",
 images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
 ]
 },
 {
-id: "63",
-title: " POT Luck, Pongal Celebration   ",
-date: "March 16, 2025",
-location: "",
-description: " POT Luck, Pongal Celebration 24, .",
-type: "Holidays/Festivals",
-images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
-]
-},  
+  id: "71",
+  title: "Potluck Celebration 2023",
+  date: "November 27, 2023",
+  type: "Holidays/Festivals",
+  description: "Potluck party photos from the 2023 celebration!",
+  images: [
+    "/POT-Luck/1.JPG",
+    "/POT-Luck/2.JPG",
+    "/POT-Luck/3.JPG",
+    "/POT-Luck/4.JPG",
+    "/POT-Luck/6.JPG",
+    "/POT-Luck/7.JPG",
+    "/POT-Luck/9.JPG",
+    "/POT-Luck/10.jpeg",
+    "/POT-Luck/IMG_1353.JPG",
+    "/POT-Luck/IMG_1370.JPG",
+    "/POT-Luck/IMG_1372.JPG",
+    "/POT-Luck/IMG_1373.JPG",
+    "/POT-Luck/WhatsApp%20Image%202023-11-27%20at%2010.21.01%20AM.jpeg",
+    "/POT-Luck/WhatsApp%20Image%202023-11-27%20at%2010.21.04%20AM%20(3).jpeg",
+    "/POT-Luck/WhatsApp%20Image%202023-11-27%20at%2010.21.05%20AM%20(1).jpeg",
+    "/POT-Luck/WhatsApp%20Image%202023-11-27%20at%2010.21.05%20AM.jpeg"
+  ]
+},
 {
 id: "64",
 title: " CSR Activity : ThankU Bakery Stall.   ",
@@ -1063,10 +1057,13 @@ location: "",
 description: " CSR Activity Jun 2023: ThankU Bakery Stall.",
 type: "Holidays/Festivals",
 images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
+"/CSR-Activity-2023/1.jpg",
+"/CSR-Activity-2023/2.jpg",
+"/CSR-Activity-2023/3.jpg",
+"/CSR-Activity-2023/4.jpg",
+"/CSR-Activity-2023/5.jpg",
+"/CSR-Activity-2023/6.jpg",
+
 ]
 }, 
 {
@@ -1077,12 +1074,41 @@ location: "",
 description: " Fire Mock Drill, .",
 type: "Holidays/Festivals",
 images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
+  "/Fire-Mock-Drill-2023/1.png",
+  "/Fire-Mock-Drill-2023/2.png",
+  "/Fire-Mock-Drill-2023/3.png",
+  "/Fire-Mock-Drill-2023/4.png",
+  "/Fire-Mock-Drill-2023/5.png",
+  "/Fire-Mock-Drill-2023/6.png",
+  "/Fire-Mock-Drill-2023/7.png",
+  "/Fire-Mock-Drill-2023/8.png",
+  "/Fire-Mock-Drill-2023/9.png",
+  "/Fire-Mock-Drill-2023/10.png"
+]
+
+}, 
+{
+id: "70",
+title: " welfare camp Bone Desity Checkup   ",
+date: "March 16, 2024",
+location: "",
+description: "welfare camp Bone Desity Checkup 2024 , .",
+type: "Holidays/Festivals",
+images: [
+"/welfare-camp-Bone-Desity-Checkup-2024/1.png",
+"/welfare-camp-Bone-Desity-Checkup-2024/2.jpg",
+"/welfare-camp-Bone-Desity-Checkup-2024/3.jpg",
+"/welfare-camp-Bone-Desity-Checkup-2024/4.jpg",
+"/welfare-camp-Bone-Desity-Checkup-2024/5.jpg",
+"/welfare-camp-Bone-Desity-Checkup-2024/6.jpg",
+"/welfare-camp-Bone-Desity-Checkup-2024/7.jpg",
+"/welfare-camp-Bone-Desity-Checkup-2024/8.jpg",
+"/welfare-camp-Bone-Desity-Checkup-2024/9.jpg",
+"/welfare-camp-Bone-Desity-Checkup-2024/10.jpeg",
+
 ]
 }, 
+
 {
 id: "66",
 title: " Wellness Camp: Eye checkup Camp   ",
@@ -1091,13 +1117,26 @@ location: "",
 description: "  Wellness Camp: Eye checkup Camp 2023, .",
 type: "Holidays/Festivals",
 images: [
-"/carrom-competition-april-2025/4.jpg",
-"/carrom-competition-april-2025/2.jpg",
-"/carrom-competition-april-2025/3.jpg",
-"/carrom-competition-april-2025/1.jpg"
+"/Welfare-camp-Eyecheckup-Camp-2023/1.jpg",
+"/Welfare-camp-Eyecheckup-Camp-2023/2.jpg",
+"/Welfare-camp-Eyecheckup-Camp-2023/3.jpg",
+"/Welfare-camp-Eyecheckup-Camp-2023/4.jpg",
+"/Welfare-camp-Eyecheckup-Camp-2023/5.png",
+"/Welfare-camp-Eyecheckup-Camp-2023/6.jpg",
+"/Welfare-camp-Eyecheckup-Camp-2023/7.jpg",
+"/Welfare-camp-Eyecheckup-Camp-2023/8.jpg",
+"/Welfare-camp-Eyecheckup-Camp-2023/9.jpg",
+"/Welfare-camp-Eyecheckup-Camp-2023/10.jpg",
+"/Welfare-camp-Eyecheckup-Camp-2023/11.jpg",
 ]
 }, 
+{
+  id: "67",
+  title: "Pongal",
+  date: "January 14 2025",
+  description: "Celebrating the harvest festival of Pongal.",
+  type: "Holidays/Festivals",
+  folder: "past-events/pongal2023",
+  imageCount: 20 // 👈 total images inside that folder
+},
 ];
-
-
-

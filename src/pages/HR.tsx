@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿﻿import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -15,1425 +15,565 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
 
+import { FiDownload, FiEye } from "react-icons/fi";
+import mammoth from "mammoth"; // Add this import for .docx rendering
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import SignaturePad from "signature_pad";
+
+
+
+
+
 // Full employee directory data from the provided Excel file
-const employeeDirectory = [
-{
-"EmpID": "A0907",
-"EmployeeName": "Jayakumar Karuppasamy",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9840299324",
-"Email": "jayakumar.pvk@gmail.com",
-"CurrentAddress": "2/247, 2nd Cross Street, Srinivasan Salai, Nanmangalam, 600129",
-"PermanentAddress": "2/247, 2nd Cross Street, Srinivasan Salai, Nanmangalam, 600129",
-"PAN": "AGVPJ9237F",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B1311",
-"EmployeeName": "Vishnu Mohan",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9710199742",
-"Email": "dvmjai@gmail.com",
-"CurrentAddress": "No-12,Ganapathy street,Shenoy Nagar,Chennai-600030.",
-"PermanentAddress": "No-12,Ganapathy street,Shenoy Nagar,Chennai-600030.",
-"PAN": "ASZPV4400G",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B1537",
-"EmployeeName": "Abirami Ravi",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9994611137",
-"Email": "abiramiravi187@gmail.com",
-"CurrentAddress": "No 251/2(TNHB FLATS), BLOCK NO 3 FLAT NO 10, PADI KUPPAM MAIN ROAD, PADI KUPPAM, MUGAPPAIR EAST",
-"PermanentAddress": "No 251/2(TNHB FLATS), BLOCK NO 3 FLAT NO 10, PADI",
-"PAN": "BINPA7610L",
-"Aadhar": "To Get",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B1564",
-"EmployeeName": "Subash Chandra Bose",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9600822654",
-"Email": "sksubash77@gmail.com",
-"CurrentAddress": "No1,B Unnathi Lake View Flats, First Main Road, Arunodhyam Nagar, Nanmangalam, Chennai - 600117",
-"PermanentAddress": "No1,B Unnathi Lake View Flats, First Main Road, Arunodhyam Nagar, Nanmangalam, Chennai - 600117",
-"PAN": "DPVPS3237G",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B1584",
-"EmployeeName": "Sebabrata Ghosh",
-"Dept": "B.D.A.",
-"Domain": "G.C.P.",
-"Certifications": "Deep Learning Specialization, Google Cloud Certified Professional Cloud Database Engineer, Professional Machine Learning Engineer, Google Cloud Certified - Associate Cloud Engineer, Google Cloud Certified - Professional Data Engineer, Google Cloud Certified Professional - Cloud Architect",
-"PhoneNumber": "9962620635",
-"Email": "sebabratar@8kmiles.com",
-"CurrentAddress": "Vill+P.O-Asanpur, Dist-Burdwan, Pin-713145",
-"PermanentAddress": "Vill+P.O-Asanpur, Dist-Burdwan, Pin-713145",
-"PAN": "BEOPG6982A",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B1611",
-"EmployeeName": "Sakthidasan E",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9840405446",
-"Email": "sakthiking@gmail.com",
-"CurrentAddress": "No: 4/437, First Main Road, P.T.C Quarters, Thuraipakkam, Chennai - 600097",
-"PermanentAddress": "No: 4/437, First Main Road, P.T.C Quarters, Thuraipakkam, Chennai - 600097",
-"PAN": "BYPPS6090A",
-"Aadhar": "To Get",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B1656",
-"EmployeeName": "Thumu Muni Venkata Surya",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9494643952",
-"Email": "surya.ithr@gmail.com",
-"CurrentAddress": "H.No : 25/2/1787, Podalakour Road, Pragathi Ngar, 7th-Street B-Block, Nellore Andhra Pradesh",
-"PermanentAddress": "H.No : 25/2/1787, Podalakour Road, Pragathi Ngar, 7th-Street B-Block, Nellore Andhra Pradesh",
-"PAN": "ALTPT6591R",
-"Aadhar": "To Get",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B1702",
-"EmployeeName": "Sriram Seshadri",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9500024077",
-"Email": "contact.sri24@gmail.com",
-"CurrentAddress": "FLAT 'D', 20/49 SUBRAMANIAM STREET, ABHIRAMAPURAM, CHENNAI 600018",
-"PermanentAddress": "FLAT 'D', 20/49 SUBRAMANIAM STREET, ABHIRAMAPURAM, CHENNAI 600018",
-"PAN": "ANJPS2620J",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B1705",
-"EmployeeName": "Pradeep V",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9160790906",
-"Email": "pradeep.stmr@gmail.com",
-"CurrentAddress": "To get",
-"PermanentAddress": "To get",
-"PAN": "ATXPV0015A",
-"Aadhar": "To Get",
-"BloodGroup": "To get"
-},
-{
-"EmpID": "B1803",
-"EmployeeName": "Mohana Balasubramaniam",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9841151232",
-"Email": "mohana1409@gmail.com",
-"CurrentAddress": "No: 5/2, 1st floor, Pammal nallathambi street, Mathiazhan nagar, Saligramam, Chennai- 600093.",
-"PermanentAddress": "No: 5/2, 1st floor, Pammal nallathambi street, Mathiazhan nagar, Saligramam, Chennai- 600093.",
-"PAN": "BORPM2583N",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B1857",
-"EmployeeName": "Chejerla Subrahmanyam",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9805249441",
-"Email": "subrahmanyam720@gmail.com",
-"CurrentAddress": "Chilamanuru(Vi and Po),Balayapalli(Mandal),S.P.S.R Nellore(Dist), AndhraPradesh",
-"PermanentAddress": "Chilamanuru(Vi and Po),Balayapalli(Mandal),S.P.S.R Nellore(Dist), AndhraPradesh",
-"PAN": "AUZPC4871C",
-"Aadhar": "To Get",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B1873",
-"EmployeeName": "Hariwasa S",
-"Dept": "C.M.S.",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "8098122794",
-"Email": "harivaas5@gmail.com",
-"CurrentAddress": "No: 536, Vaikkam Periyar Nagar, Avaniyapuram, Madurai-625012",
-"PermanentAddress": "No: 536, Vaikkam Periyar Nagar, Avaniyapuram, Madurai-625012",
-"PAN": "AKOPH8079E",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B1874",
-"EmployeeName": "Agathees Kumar",
-"Dept": "Cloud Ez",
-"Domain": "Kubernetes",
-"Certifications": "Certified Kubernetes Administrator, Certified Kubernetes Security Specialist",
-"PhoneNumber": "8072282461",
-"Email": "d.agatheeskumar@gmail.com",
-"CurrentAddress": "5/47, South Street, Pallangkinaru, Sathankulam, Tuticorin-628701",
-"PermanentAddress": "5/47, South Street, Pallangkinaru, Sathankulam, Tuticorin-628701",
-"PAN": "BKGP2031N",
-"Aadhar": "To Get",
-"BloodGroup": "A+Ve"
-},
-{
-"EmpID": "B1890",
-"EmployeeName": "Veeresh M",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "7868035073",
-"Email": "veereshmano@gmail.com",
-"CurrentAddress": "No.73, Mela Street, Soorapallam, Pattukkottai, Thanjavur - 614601",
-"PermanentAddress": "No.73, Mela Street, Soorapallam, Pattukkottai, Thanjavur - 614601",
-"PAN": "AXTPV6797M",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B1923",
-"EmployeeName": "Swathy R",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8870743453",
-"Email": "swathyram2002@gmail.com",
-"CurrentAddress": "No: 2/252, 2nd block, Agathiyar 1st street, Mogappair east, Chennai- 600037",
-"PermanentAddress": "No: 2/252, 2nd block, Agathiyar 1st street, Mogappair east, Chennai- 600037",
-"PAN": "FRCPS0258G",
-"Aadhar": "To Get",
-"BloodGroup": "B-Ve"
-},
-{
-"EmpID": "B1941",
-"EmployeeName": "Joshva Nathan M",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "7299739150",
-"Email": "joshva0894@gmail.com",
-"CurrentAddress": "To get",
-"PermanentAddress": "To get",
-"PAN": "AUUPJ2405J",
-"Aadhar": "To Get",
-"BloodGroup": "To get"
-},
-{
-"EmpID": "B1953",
-"EmployeeName": "Harithasri S",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8754425676",
-"Email": "harithasriselva@gmail.com",
-"CurrentAddress": "PLOT NO:73, DOOR NO:5, MUTHU ILLAM, PRIYA NAGAR FIRST STREET, URAPAKKAM, CHENGALPATTU DISTRICT-603210",
-"PermanentAddress": "PLOT NO:73, DOOR NO:5, MUTHU ILLAM, PRIYA NAGAR FIRST STREET, URAPAKKAM, CHENGALPATTU DISTRICT-603210",
-"PAN": "APQPH8253R",
-"Aadhar": "To Get",
-"BloodGroup": "A1B+Ve"
-},
-{
-"EmpID": "B1971",
-"EmployeeName": "Velayutham G",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9500173001",
-"Email": "gvela.chennai@gmail.com",
-"CurrentAddress": "L-348, Ground Floor, 14th Cross Street, Thiruvalluvar Nagar, Thiruvanmiyur, Chennai - 600041",
-"PermanentAddress": "L-348, Ground Floor, 14th Cross Street, Thiruvalluvar Nagar, Thiruvanmiyur, Chennai - 600041",
-"PAN": "AIEPV2399H",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B1981",
-"EmployeeName": "Pamulapati Kishore",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8886828211",
-"Email": "pvkishorechowdhary@outlook.com",
-"CurrentAddress": "Flat No: 302, Parthika Enclave, 1st B main, Coconut garden layout, Ayyappa Nagar, Krishnarajapura, Bengaluru, Karnataka 560036",
-"PermanentAddress": "Flat No: 302, Parthika Enclave, 1st B main, Coconut garden layout, Ayyappa Nagar, Krishnarajapura, Bengaluru, Karnataka 560036",
-"PAN": "CSUPP3547B",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B20004",
-"EmployeeName": "Ananth P",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8870190189",
-"Email": "likeanand05@hotmail.com",
-"CurrentAddress": "14/9A, ASARI STREET, UPPILIAPURAM, THURAIYUR (T.K), TRICHY, TAMILNADU. PIN-621011",
-"PermanentAddress": "14/9A, ASARI STREET, UPPILIAPURAM, THURAIYUR (T.K), TRICHY, TAMILNADU. PIN-621011",
-"PAN": "AXZPA9154D",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B20012",
-"EmployeeName": "Hemamalini K",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9840355465",
-"Email": "hema_litt@yahoo.co.in",
-"CurrentAddress": "D212, Radiance Mercury Apartments, Gandhi Nagar Soceity, Triplicane, Chennai 600100",
-"PermanentAddress": "D212, Radiance Mercury Apartments, Gandhi Nagar Soceity, Triplicane, Chennai 600100",
-"PAN": "ACTPH1760M",
-"Aadhar": "To Get",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B20058",
-"EmployeeName": "Murali Krishnan R",
-"Dept": "Admin.",
-"Domain": "I.S.O.",
-"Certifications": "ISO27001: 2013 & ISMS Lead auditor, AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "9840057563",
-"Email": "murali.krishnan1982@gmail.com",
-"CurrentAddress": "Tejasri Apartments, Flat F, Viswathapuram Khadarthottam, Nanganallur, Chennai - 61",
-"PermanentAddress": "Tejasri Apartments, Flat F, Viswathapuram Khadarthottam, Nanganallur, Chennai - 61",
-"PAN": "ANRPM9823B",
-"Aadhar": "828544643690",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B20063",
-"EmployeeName": "Ramesh Ram",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8668187307",
-"Email": "rameshrampr@gmail.com",
-"CurrentAddress": "17, Lakshmi Mills Colony, Pappanaicken Palayam, Coimbatore 641037",
-"PermanentAddress": "17, Lakshmi Mills Colony, Pappanaicken Palayam, Coimbatore 641037",
-"PAN": "BHRPR3269K",
-"Aadhar": "636860527915",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B20075",
-"EmployeeName": "Cynthia V",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9841550407",
-"Email": "cynthia.aravind@gmail.com",
-"CurrentAddress": "No: 14, Ambika Nagar Main Road, Madambakkam, Chennai 600126",
-"PermanentAddress": "No: 14, Ambika Nagar Main Road, Madambakkam, Chennai 600126",
-"PAN": "ARIPC9260B",
-"Aadhar": "745188515426",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B20111",
-"EmployeeName": "Sivakumar Natarajan",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9940103400",
-"Email": "Siva.x.kumar@gmail.com",
-"CurrentAddress": "87D Regal Palm Gardens, Velachery, Chennai 600042",
-"PermanentAddress": "87D Regal Palm Gardens, Velachery, Chennai 600042",
-"PAN": "BLDPS9596J",
-"Aadhar": "368130470663",
-"BloodGroup": "AB+Ve"
-},
-{
-"EmpID": "B20115",
-"EmployeeName": "Manikandan Srinivasan",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8608564636",
-"Email": "manikandan150295@gmail.com",
-"CurrentAddress": "No 922, T H Road, Old Washermenpet, Chennai - 600021",
-"PermanentAddress": "No 922, T H Road, Old Washermenpet, Chennai - 600021",
-"PAN": "EGMPM0893R",
-"Aadhar": "479494387559",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B20123",
-"EmployeeName": "Manikandan V",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8668066199",
-"Email": "manikandaboobathraja@gmail.com",
-"CurrentAddress": "5/334-Near SKR Shop,Okkiyampet Bus-stop,Chennai-6000097",
-"PermanentAddress": "5/334-Near SKR Shop,Okkiyampet Bus-stop,Chennai-6000097",
-"PAN": "CGDPM7939M",
-"Aadhar": "470062334761",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "D0001",
-"EmployeeName": "Selvaraj",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "N.A.",
-"Email": "",
-"CurrentAddress": "No:4/145 Annai Sathiya salai, MGR Nagar, Rajivgandhi salai, Kottivakkam,Ch-600041",
-"PermanentAddress": "No:4/145 Annai Sathiya salai, MGR Nagar, Rajivgandhi salai, Kottivakkam,Ch-600041",
-"PAN": "GAMPS2690E",
-"Aadhar": "To Get",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "D0003",
-"EmployeeName": "Senthil",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9790270100",
-"Email": "",
-"CurrentAddress": "No-12/12 Big street, Semmedu, Villupuram ,Gingee-604153",
-"PermanentAddress": "No-12/12 Big street, Semmedu, Villupuram ,Gingee-604153",
-"PAN": "EABPR2094L",
-"Aadhar": "507464448831",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "H0001",
-"EmployeeName": "Valarmathy",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "N.A.",
-"Email": "",
-"CurrentAddress": "No-40/14,Raghavan colony 4th cross street, Jafferkhanpet, Ashok Nagar,Chennai-600083",
-"PermanentAddress": "No-40/14,Raghavan colony 4th cross street, Jafferkhanpet, Ashok Nagar,Chennai-600083",
-"PAN": "CAFPV1288N",
-"Aadhar": "684969143868",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B21017",
-"EmployeeName": "Chandrakanth S",
-"Dept": "B.D.A.",
-"Domain": "Scrum",
-"Certifications": "Scrum Master",
-"PhoneNumber": "8105945066",
-"Email": "chandru173898@yahoo.co.in",
-"CurrentAddress": "#62, Lingabhairavi Kudil, Seevagasinthamani St., Sentamil Nagar, Karuppayurani, Madurai - 625020",
-"PermanentAddress": "#62, Lingabhairavi Kudil, Seevagasinthamani St., Sentamil Nagar, Karuppayurani, Madurai - 625020",
-"PAN": "ANBPC1683K",
-"Aadhar": "897059917863",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B21021",
-"EmployeeName": "Jayasree R",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8248346063",
-"Email": "jayasreer534@gmail.com",
-"CurrentAddress": "Bangalore",
-"PermanentAddress": "Bangalore",
-"PAN": "AJMPJ6560F",
-"Aadhar": "270297335513",
-"BloodGroup": "AB+Ve"
-},
-{
-"EmpID": "B21024",
-"EmployeeName": "Sweetha B",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9789967241",
-"Email": "sweetha.baskaran@securekloud.com",
-"CurrentAddress": "No. 4DC, Sai kirupa flats, Kovur, Chennai - 600128",
-"PermanentAddress": "No. 4DC, Sai kirupa flats, Kovur, Chennai - 600128",
-"PAN": "EIAPS9071P",
-"Aadhar": "520231709639",
-"BloodGroup": "A+Ve"
-},
-{
-"EmpID": "B21025",
-"EmployeeName": "Shanmugavel S",
-"Dept": "B.D.A.",
-"Domain": "A.W.S.",
-"Certifications": "Azure Fundamentals, AWS Cloud Practitioner, AWS Certified Solution Architect Associate, AWS Certified Security - Specialty, Certified Kubernetes Application Developer, AWS Certified Developer- Associate",
-"PhoneNumber": "8122336589",
-"Email": "Shanmugavel281996@gmail.com",
-"CurrentAddress": "2/10, Nadu street, Kondamanaickenpatty, Namakkal 637405",
-"PermanentAddress": "2/10, Nadu street, Kondamanaickenpatty, Namakkal 637405",
-"PAN": "IPBPS6882C",
-"Aadhar": "654464659035",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B21029",
-"EmployeeName": "Ramesh Sampath S",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9791110541",
-"Email": "ramesh_geetha@yahoo.com",
-"CurrentAddress": "59/29-1, TP Koil I lane, Sri Vari, Triplicane, Chennai 600005",
-"PermanentAddress": "59/29-1, TP Koil I lane, Sri Vari, Triplicane, Chennai 600005",
-"PAN": "AWAPR2257E",
-"Aadhar": "419134873353",
-"BloodGroup": "A1+Ve"
-},
-{
-"EmpID": "B21064",
-"EmployeeName": "Praghatiesh S",
-"Dept": "Cloud Ez",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "9715191466",
-"Email": "praghatieshss@gmail.com",
-"CurrentAddress": "No: 81, Umar Street, P.konthagai, Thittachery, Nagapattinam-DT, Tamilnadu-609703",
-"PermanentAddress": "No: 81, Umar Street, P.konthagai, Thittachery, Nagapattinam-DT, Tamilnadu-609703",
-"PAN": "NYZPS6756P",
-"Aadhar": "345594226168",
-"BloodGroup": "A1+Ve"
-},
-{
-"EmpID": "B21066",
-"EmployeeName": "Selva Kumar T",
-"Dept": "Cloud Ez",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "9344614223",
-"Email": "selva1712098@gmail.com",
-"CurrentAddress": "21,VADAKATHI AMMAN KOVIL 2ND STREET,ILANJI-627805,TENKASI DISTRICT.",
-"PermanentAddress": "21,VADAKATHI AMMAN KOVIL 2ND STREET,ILANJI-627805,TENKASI DISTRICT.",
-"PAN": "JCJPS9638N",
-"Aadhar": "534471274967",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B21075",
-"EmployeeName": "Jegan R",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "7675056549",
-"Email": "jeganrethinapandian@gmail.com",
-"CurrentAddress": "8/344, East Street, Chettikulam, Tirunelveli, Tamil Nadu - 627120",
-"PermanentAddress": "8/344, East Street, Chettikulam, Tirunelveli, Tamil Nadu - 627120",
-"PAN": "AVPPJ3399H",
-"Aadhar": "461078449989",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B21076",
-"EmployeeName": "Veerendra Kumar Meka R",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9059285399",
-"Email": "veerendra.meka79@gmail.com",
-"CurrentAddress": "D.No: 5-172, Balusuvari Street, Srinagar, Pulugurtha Village, Anaparthi Mandal, East Godavari Dist, Andhra Pradesh-533261",
-"PermanentAddress": "D.No: 5-172, Balusuvari Street, Srinagar, Pulugurtha Village, Anaparthi Mandal, East Godavari Dist, Andhra Pradesh-533261",
-"PAN": "CFHPM3951A",
-"Aadhar": "428772746743",
-"BloodGroup": "AB+Ve"
-},
-{
-"EmpID": "B21077",
-"EmployeeName": "Karthick Gajapathy J",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "994094470_compute",
-"Email": "karthick_gajapathy@outlook.com",
-"CurrentAddress": "skycity appartments tower 15 door no 203 vanagaram Chennai 600095",
-"PermanentAddress": "skycity appartments tower 15 door no 203 vanagaram Chennai 600095",
-"PAN": "DORPK6775L",
-"Aadhar": "712929186013",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B21080",
-"EmployeeName": "Ooviyalakshmi K",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9342366082",
-"Email": "ooviyalakshmi12@gmail.com",
-"CurrentAddress": "381,Gnanajothi Nagar, c.kothangudi ,Chidambaram 608001",
-"PermanentAddress": "381,Gnanajothi Nagar, c.kothangudi ,Chidambaram 608001",
-"PAN": "ABNPO6153C",
-"Aadhar": "979929702880",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B21101",
-"EmployeeName": "Venkata Siva Reddy M",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9550826942",
-"Email": "sivareddymeraki@gmail.com",
-"CurrentAddress": "3-427, Ahsanam street, vempalli road, Yerraguntla, Y.S.R KADAPA Dist, zip code 516309",
-"PermanentAddress": "3-427, Ahsanam street, vempalli road, Yerraguntla, Y.S.R KADAPA Dist, zip code 516309",
-"PAN": "BUCPR6579L",
-"Aadhar": "911963551675",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B21104",
-"EmployeeName": "Sruthi S",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "7010639532",
-"Email": "sruthisankar178@gmail.com",
-"CurrentAddress": "F5, Atulya Apartments, Gandhi Street, Keelkattalai, Chennai -600117",
-"PermanentAddress": "F5, Atulya Apartments, Gandhi Street, Keelkattalai, Chennai -600117",
-"PAN": "GUVPS8613G",
-"Aadhar": "380447421403",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B21110",
-"EmployeeName": "Vipul Vohra",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9463410530",
-"Email": "vipul.vohra7@gmail.com",
-"CurrentAddress": "#H-348, Phase-1, Mohali (Punjab), 160055",
-"PermanentAddress": "#H-348, Phase-1, Mohali (Punjab), 160055",
-"PAN": "AKHPV4587E",
-"Aadhar": "226124193902",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B21119",
-"EmployeeName": "Vijay Kumar M",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8977123478",
-"Email": "muramreddy.vijay01@gmail.com",
-"CurrentAddress": "Muthukuru(V), Kothapalli (P), Anantha Sagaram (M), SPSR Nellore (Dt).",
-"PermanentAddress": "Muthukuru(V), Kothapalli (P), Anantha Sagaram (M), SPSR Nellore (Dt).",
-"PAN": "EYZPM8082D",
-"Aadhar": "890157059193",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B21150",
-"EmployeeName": "Kishore Kumar S",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9789830470",
-"Email": "imkishoreshankar@gmail.com",
-"CurrentAddress": "831,9th street, 4th cross, s a colony, vyasarpadi, Chennai-600039",
-"PermanentAddress": "831,9th street, 4th cross, s a colony, vyasarpadi, Chennai-600039",
-"PAN": "EVHPK2530K",
-"Aadhar": "582147369251",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B21153",
-"EmployeeName": "Abubakkar Siddik N",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8838985690",
-"Email": "abusiddikn@outlook.com",
-"CurrentAddress": "No 48, MR Mill 2nd street, South Ukkadai Ariyamangalam, Trichy - 620010",
-"PermanentAddress": "No 48, MR Mill 2nd street, South Ukkadai Ariyamangalam, Trichy - 620010",
-"PAN": "CKMPA1209F",
-"Aadhar": "648291368238",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B21155",
-"EmployeeName": "Nethaji S",
-"Dept": "C.M.S.",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "8870743572",
-"Email": "nethaji1810@gmail.com",
-"CurrentAddress": "591, REDDIYAPALYAM (PO) ,THANDRAMPATU (TK), TIRUVANNAMALAI(DT) 606708",
-"PermanentAddress": "591, REDDIYAPALYAM (PO) ,THANDRAMPATU (TK), TIRUVANNAMALAI(DT) 606708",
-"PAN": "AXZPN4631Q",
-"Aadhar": "579808782422",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B21167",
-"EmployeeName": "Prasad N",
-"Dept": "C.M.S.",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "9390398998",
-"Email": "prasadn6966@gmail.com",
-"CurrentAddress": "4/17 Pathasykamvari palli, Madhavaram(v),Rayachoti(M),Kadapa(Dist),Andhra Pradesh-516269",
-"PermanentAddress": "4/17 Pathasykamvari palli, Madhavaram(v),Rayachoti(M),Kadapa(Dist),Andhra Pradesh-516269",
-"PAN": "DZAPP1391F",
-"Aadhar": "792515352216",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B21169",
-"EmployeeName": "Anand J",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9566221473",
-"Email": "anandvjp@gmail.com",
-"CurrentAddress": "Block 2 Flat 2310 Mambakkam, Chennai,600127",
-"PermanentAddress": "Block 2 Flat 2310 Mambakkam, Chennai,600127",
-"PAN": "ASDPA7750N",
-"Aadhar": "206113883674",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B22029",
-"EmployeeName": "Ezhilarasi S",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8610841056",
-"Email": "anithasekar1993@gmail.com",
-"CurrentAddress": "14A, balaji avenue-II,Neelamangalam,Guduvanchery-603202",
-"PermanentAddress": "14A, balaji avenue-II,Neelamangalam,Guduvanchery-603202",
-"PAN": "ADTPE2229D",
-"Aadhar": "349260641808",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22031",
-"EmployeeName": "Abhinav Sutradhar",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "7387006711",
-"Email": "abhinav.sutradhar@gmail.com",
-"CurrentAddress": "2E, Himmat Tower, Gokul Housing Society, Borgaon, Nagpur, 440013, Maharashtra",
-"PermanentAddress": "2E, Himmat Tower, Gokul Housing Society, Borgaon, Nagpur, 440013, Maharashtra",
-"PAN": "GQYPS1410J",
-"Aadhar": "333927121540",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22040",
-"EmployeeName": "Nachiyar C",
-"Dept": "B.D.A.",
-"Domain": "G.C.P.",
-"Certifications": "Google Cloud Certified - Cloud Digital Leader",
-"PhoneNumber": "7904083032",
-"Email": "nachiyar27@gmail.com",
-"CurrentAddress": "63, Perumal Sannathi Street, Veeraraghavapuram, Tirunelveli, Junction - 627001",
-"PermanentAddress": "63, Perumal Sannathi Street, Veeraraghavapuram, Tirunelveli, Junction - 627001",
-"PAN": "ASNPN8637M",
-"Aadhar": "511259491268",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B22048",
-"EmployeeName": "Saravana Kumar D",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8220056524",
-"Email": "developer.skiy9798@gmail.com",
-"CurrentAddress": "NO 27, THERPILLAIYAR KOVIL STREET, NEAR ST PAULS ELEMENTARY SCHOOL, KK NAGAR, VILLUPURAM 605602",
-"PermanentAddress": "NO 27, THERPILLAIYAR KOVIL STREET, NEAR ST PAULS ELEMENTARY SCHOOL, KK NAGAR, VILLUPURAM 605602",
-"PAN": "MHCPS0784A",
-"Aadhar": "905236534152",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B22050",
-"EmployeeName": "Manivannan K",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9629083852",
-"Email": "manikannan610@gmail.com",
-"CurrentAddress": "71, first street, sengunthapuram, jayankondam, ariyalur - 621802",
-"PermanentAddress": "71, first street, sengunthapuram, jayankondam, ariyalur - 621802",
-"PAN": "DXBPM8293Q",
-"Aadhar": "960837604365",
-"BloodGroup": "AB+Ve"
-},
-{
-"EmpID": "B22055",
-"EmployeeName": "Sinthya Alex A",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "7598949863",
-"Email": "ammusinthya21@gmail.com",
-"CurrentAddress": "No.10A, Govindhaswamy Street, Pillaiyar Kovil main street, Near Ganaphathy Steels, Jafferkhanpet, Chennai-83",
-"PermanentAddress": "No.10A, Govindhaswamy Street, Pillaiyar Kovil main street, Near Ganaphathy Steels, Jafferkhanpet, Chennai-83",
-"PAN": "EESPS8950D",
-"Aadhar": "731320410695",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B22058",
-"EmployeeName": "Karthikeyan V",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9384634297",
-"Email": "karthikeyan.vel17@gmail.com",
-"CurrentAddress": "No 168 sri valli nagar nandhivaram guduvancheri 603202",
-"PermanentAddress": "No 168 sri valli nagar nandhivaram guduvancheri 603202",
-"PAN": "BYTPV0483L",
-"Aadhar": "987430746635",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22081",
-"EmployeeName": "Devendran Rajesh K",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9944848558",
-"Email": "devendranrajesh@gmail.com",
-"CurrentAddress": "38, Vel Niketan apartment, Ground floor, Vellalar street, Kodambakkam, Chennai-600024.",
-"PermanentAddress": "38, Vel Niketan apartment, Ground floor, Vellalar street, Kodambakkam, Chennai-600024.",
-"PAN": "AVGPD3254J",
-"Aadhar": "439384836466",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B22082",
-"EmployeeName": "Radhika M",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8838302373",
-"Email": "radhikaarchitect06@gmail.com",
-"CurrentAddress": "Plot.63, Door no.2, Telephone Nagar 7th cross street, Perungudi, Chennai - 600096.",
-"PermanentAddress": "Plot.63, Door no.2, Telephone Nagar 7th cross street, Perungudi, Chennai - 600096.",
-"PAN": "DPYPR3828P",
-"Aadhar": "632505135029",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22088",
-"EmployeeName": "Aravindh S",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "7339640121",
-"Email": "suryaaravindh555@gmail.com",
-"CurrentAddress": "12/17/2 Madathuvillai,viricode,Marthandam,Kanyakumari",
-"PermanentAddress": "12/17/2 Madathuvillai,viricode,Marthandam,Kanyakumari",
-"PAN": "KDSPS1475J",
-"Aadhar": "264813230120",
-"BloodGroup": "A+Ve"
-},
-{
-"EmpID": "B22110",
-"EmployeeName": "Hariprasaad G N",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "7904426517",
-"Email": "hariprasaadgan@gmail.com",
-"CurrentAddress": "C-8, Bracket street, Block-11, Neyveli 607803",
-"PermanentAddress": "C-8, Bracket street, Block-11, Neyveli 607803",
-"PAN": "AKJPH4107N",
-"Aadhar": "848182940381",
-"BloodGroup": "A+Ve"
-},
-{
-"EmpID": "B22112",
-"EmployeeName": "Gunaselvam E",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "6379320873",
-"Email": "selvamgunal8@gmail.com",
-"CurrentAddress": "13,NAVANEETHAM STREET,PERIYA PAGANDAI,CUDDALORE. 607112",
-"PermanentAddress": "13,NAVANEETHAM STREET,PERIYA PAGANDAI,CUDDALORE. 607112",
-"PAN": "CVLPG5306H",
-"Aadhar": "992009481852",
-"BloodGroup": "AB+Ve"
-},
-{
-"EmpID": "B22115",
-"EmployeeName": "Harikishore L",
-"Dept": "Blockchain Solutions",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Cloud Practitioner",
-"PhoneNumber": "9025343612",
-"Email": "harikishore1258@gmail.com",
-"CurrentAddress": "12/245, Kannadhasan Salai, Mogappair East, Chennai-37",
-"PermanentAddress": "12/245, Kannadhasan Salai, Mogappair East, Chennai-37",
-"PAN": "BJPPL1883D",
-"Aadhar": "528782167468",
-"BloodGroup": "A+Ve"
-},
-{
-"EmpID": "B22117",
-"EmployeeName": "Nivashini S",
-"Dept": "Cloud Ez",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "8072569107",
-"Email": "nivashini.s2001@gmail.com",
-"CurrentAddress": "\"3/406N\" lyyappan Nagar, Sullipalayam, Thuduppathi-638057",
-"PermanentAddress": "\"3/406N\" lyyappan Nagar, Sullipalayam, Thuduppathi-638057",
-"PAN": "CPIPN9332K",
-"Aadhar": "270051548260",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B22119",
-"EmployeeName": "Lakshmi A",
-"Dept": "Cloud Ez",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "9952586046",
-"Email": "lakshmsas@gmail.com",
-"CurrentAddress": "No:2-2-133, Amman Kovil street, Kattalaikudiyiruppu, Shenkottai - 627813.",
-"PermanentAddress": "No:2-2-133, Amman Kovil street, Kattalaikudiyiruppu, Shenkottai - 627813.",
-"PAN": "AINPL0055D",
-"Aadhar": "371504982167",
-"BloodGroup": "A1B+Ve"
-},
-{
-"EmpID": "B22120",
-"EmployeeName": "Kishore N L",
-"Dept": "Blockchain Solutions",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "6382175209",
-"Email": "Kishoreharry2001@gmail.com",
-"CurrentAddress": "4/91, Pachudayampalayam, Rasipuram, Namakkal-637406",
-"PermanentAddress": "4/91, Pachudayampalayam, Rasipuram, Namakkal-637406",
-"PAN": "LIKPK7941K",
-"Aadhar": "975243332483",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22124",
-"EmployeeName": "Sachidanantham S",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9789051872",
-"Email": "sachidanantham.s@gmail.com",
-"CurrentAddress": "Plot No - 3, M.S. Garden - Phase 2, Thirumanam Village, Chennai - 600072.",
-"PermanentAddress": "Plot No - 3, M.S. Garden - Phase 2, Thirumanam Village, Chennai - 600072.",
-"PAN": "BAYPS0089N",
-"Aadhar": "380768751818",
-"BloodGroup": "A+Ve"
-},
-{
-"EmpID": "B22125",
-"EmployeeName": "Saurav Sarkar A",
-"Dept": "Blockchain Solutions",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Cloud Practitioner",
-"PhoneNumber": "8939828749",
-"Email": "sauravsarkar421@gmail.com",
-"CurrentAddress": "108, S2, Sakthi Aishwaryam Garden, Banu Nagar, 19th Avenue, Ambattur, Chennai-600053",
-"PermanentAddress": "108, S2, Sakthi Aishwaryam Garden, Banu Nagar, 19th Avenue, Ambattur, Chennai-600053",
-"PAN": "LXLPS1036H",
-"Aadhar": "721378968852",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B22128",
-"EmployeeName": "Priya P M",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "6383062765",
-"Email": "priyachandramadhu@gmail.com",
-"CurrentAddress": "13B, Narashimmapuram street, kamarajar salai, madurai - 625009.",
-"PermanentAddress": "13B, Narashimmapuram street, kamarajar salai, madurai - 625009.",
-"PAN": "GXCPM2131R",
-"Aadhar": "854880184241",
-"BloodGroup": "AB+Ve"
-},
-{
-"EmpID": "B22131",
-"EmployeeName": "Sriram R",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8072446248",
-"Email": "sriram.ram42@gmail.com",
-"CurrentAddress": "No 36 Saratha Nagar 3rd Street Korattur Chennai 600076",
-"PermanentAddress": "No 36 Saratha Nagar 3rd Street Korattur Chennai 600076",
-"PAN": "JIKPS0739H",
-"Aadhar": "634350098010",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22141",
-"EmployeeName": "Kameswaran R",
-"Dept": "C.M.S.",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "9566697374",
-"Email": "kameshwaran7374@gmail.com",
-"CurrentAddress": "1/74/1 S.pallipattu, near Railway Gate, Adiyur post ,Tirupattur Taluk, Tirupattur District -635602 ,Tamil Nadu",
-"PermanentAddress": "1/74/1 S.pallipattu, near Railway Gate, Adiyur post ,Tirupattur Taluk, Tirupattur District -635602 ,Tamil Nadu",
-"PAN": "EFGPK3823G",
-"Aadhar": "544749868603",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22143",
-"EmployeeName": "Syed Navassherif S",
-"Dept": "C.M.S.",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "8220401575",
-"Email": "navasherif2398@gmail.com",
-"CurrentAddress": "181 B PN road Kunnathur Tirupur district - 638103",
-"PermanentAddress": "181 B PN road Kunnathur Tirupur district - 638103",
-"PAN": "GZJPS2908M",
-"Aadhar": "218831832102",
-"BloodGroup": "A1+Ve"
-},
-{
-"EmpID": "B22149",
-"EmployeeName": "Shalman M",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "7538845045",
-"Email": "shalman.mohamedaniba@gmail.com",
-"CurrentAddress": "260,Kamaraja Puram, Sattur -626203, Virudhunagar Dist",
-"PermanentAddress": "260,Kamaraja Puram, Sattur -626203, Virudhunagar Dist",
-"PAN": "GIEPM7975N",
-"Aadhar": "718209150008",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22152",
-"EmployeeName": "Valarmathi V",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8056140918",
-"Email": "valarmathiv505@gmail.com",
-"CurrentAddress": "125/ 78 Sastri Nagar 1 St Street Sharma nagar vysarpadi chennai 600039",
-"PermanentAddress": "125/ 78 Sastri Nagar 1 St Street Sharma nagar vysarpadi chennai 600039",
-"PAN": "BZVPV7262E",
-"Aadhar": "807068814118",
-"BloodGroup": "A1+Ve"
-},
-{
-"EmpID": "B22156",
-"EmployeeName": "Priyanka C",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "6369667259",
-"Email": "priyankavanitha21@gmail.com",
-"CurrentAddress": "3/468,Anna Nagar East,Kaikolapalayam,Perundurai,Erode-638056",
-"PermanentAddress": "3/468,Anna Nagar East,Kaikolapalayam,Perundurai,Erode-638056",
-"PAN": "CPNPC3916D",
-"Aadhar": "685996443482",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22157",
-"EmployeeName": "Viral Kothari K",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9500191317",
-"Email": "Viralkothari.cs@gmail.com",
-"CurrentAddress": "No 62/93/1, Kandasamy Koil Street, Perambur Barracks Road, Kosapet-600012",
-"PermanentAddress": "No 62/93/1, Kandasamy Koil Street, Perambur Barracks Road, Kosapet-600012",
-"PAN": "AQGPV1945F",
-"Aadhar": "436746962240",
-"BloodGroup": "A+Ve"
-},
-{
-"EmpID": "B22161",
-"EmployeeName": "Kathiravan P",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "6383964419",
-"Email": "kathiravanpalani03@gmail.com",
-"CurrentAddress": "No: 172/A, Chinna Street, Kamambut, Katpadi, Vellore-632519",
-"PermanentAddress": "No: 172/A, Chinna Street, Kamambut, Katpadi, Vellore-632519",
-"PAN": "IOLPK3965P",
-"Aadhar": "349456552478",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22162",
-"EmployeeName": "Prem Kumar G",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8610576310",
-"Email": "prmkmr507@gmail.com",
-"CurrentAddress": "#NO 1/145 Linga reddyur village, kandepude post, katapdi TK, vellore -632106",
-"PermanentAddress": "#NO 1/145 Linga reddyur village, kandepude post, katapdi TK, vellore -632106",
-"PAN": "CADPP1639K",
-"Aadhar": "801796916037",
-"BloodGroup": "A+Ve"
-},
-{
-"EmpID": "B22166",
-"EmployeeName": "Kamatchi M",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8807975792",
-"Email": "Kamatchimohan1988@gmail.com",
-"CurrentAddress": "No. 928, sowbakiya nagar, vishnupriya avenue, Guduvanchery, Chennai - 603202",
-"PermanentAddress": "No. 928, sowbakiya nagar, vishnupriya avenue, Guduvanchery, Chennai - 603202",
-"PAN": "BGQPK9397H",
-"Aadhar": "769124283620",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22181",
-"EmployeeName": "Diwakar N",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9962412494",
-"Email": "diwakarn0616@gmail.com",
-"CurrentAddress": "4/48,3rd street,Balaji nagar,lyyappanthangal,chennai-600122",
-"PermanentAddress": "4/48,3rd street,Balaji nagar,lyyappanthangal,chennai-600122",
-"PAN": "EQQPD5948N",
-"Aadhar": "533679231486",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B22182",
-"EmployeeName": "Vaitheeshwaran J",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "6374234489",
-"Email": "vaitheeshca3006@gmail.com",
-"CurrentAddress": "No:20,2nd street, Annamalai Nagar, Avadi, Chennai-600054",
-"PermanentAddress": "No:20,2nd street, Annamalai Nagar, Avadi, Chennai-600054",
-"PAN": "CJZPJ9628P",
-"Aadhar": "647324152304",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B22184",
-"EmployeeName": "Siva Rama Krishnan P",
-"Dept": "C.M.S.",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "7708507040",
-"Email": "sivaramkrishan28@gmail.com",
-"CurrentAddress": "No:47/51, Perumal South Street, Nagapattinam, TAMIL NADU-611 001.",
-"PermanentAddress": "No:47/51, Perumal South Street, Nagapattinam, TAMIL NADU-611 001.",
-"PAN": "IPOPK5324E",
-"Aadhar": "687203701123",
-"BloodGroup": "A1+Ve"
-},
-{
-"EmpID": "B22195",
-"EmployeeName": "Vijayakumar P",
-"Dept": "I.T. Admin.",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Cloud Practitioner",
-"PhoneNumber": "9840413353",
-"Email": "vijayakumarparthip@gmail.com",
-"CurrentAddress": "No 1064 B, 29th street, B V colony, Vyasarpadi, Chennai : 600039",
-"PermanentAddress": "No 1064 B, 29th street, B V colony, Vyasarpadi, Chennai : 600039",
-"PAN": "AQBPV6120F",
-"Aadhar": "421685252153",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B22205",
-"EmployeeName": "Tamilarasan P",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9943525511",
-"Email": "tamilca@gmail.com",
-"CurrentAddress": "No.1/692, Shanthi Nagar, 4th Cross Street, Andankovil East, Athur, Karur - 639008",
-"PermanentAddress": "No.1/692, Shanthi Nagar, 4th Cross Street, Andankovil East, Athur, Karur - 639008",
-"PAN": "AITPT6118P",
-"Aadhar": "225674879615",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B23008",
-"EmployeeName": "Shajin R T",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9043193238",
-"Email": "rtshajin2016@gmail.com",
-"CurrentAddress": "17/60, Thickanamcode, Kanyakumari District",
-"PermanentAddress": "17/60, Thickanamcode, Kanyakumari District",
-"PAN": "BXOPT6950L",
-"Aadhar": "793462858399",
-"BloodGroup": "A1+Ve"
-},
-{
-"EmpID": "B23011",
-"EmployeeName": "Rathinasabapathi A",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9443275260",
-"Email": "rathinasabapathi99@gmail.com",
-"CurrentAddress": "27 A, Vadakkirppu, AnnamalaiNagar, Chidambaram (Tk), Cuddalore (Dt)",
-"PermanentAddress": "27 A, Vadakkirppu, AnnamalaiNagar, Chidambaram (Tk), Cuddalore (Dt)",
-"PAN": "GEVPR7789G",
-"Aadhar": "506140426665",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B23016",
-"EmployeeName": "Balaji S",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9940284228",
-"Email": "Balaji.ji67@gmail.com",
-"CurrentAddress": "#11/53,Plot No 19 Lakshimi Nagar,Manali New Town, Chennai - 600103",
-"PermanentAddress": "#11/53,Plot No 19 Lakshimi Nagar,Manali New Town, Chennai - 600103",
-"PAN": "DWZPS5936P",
-"Aadhar": "735825095321",
-"BloodGroup": "B-Ve"
-},
-{
-"EmpID": "B23028",
-"EmployeeName": "Ashwinkumar R",
-"Dept": "Cloud C.O.E.",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Cloud Practitioner, AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "7550206949",
-"Email": "ashwinkumar1015@gmail.com",
-"CurrentAddress": "No:1/146, Nehru Street, Mudichur, Chennai-600048.",
-"PermanentAddress": "No:1/146, Nehru Street, Mudichur, Chennai-600048.",
-"PAN": "FCPPR5911H",
-"Aadhar": "486193956331",
-"BloodGroup": "A1+Ve"
-},
-{
-"EmpID": "B23035",
-"EmployeeName": "Kokila V",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9791520722",
-"Email": "kokilamca3@gmail.com",
-"CurrentAddress": "3/280 Mail road, Karumbanoor, Kalathimadam(p.o), Alangulam(T.K), Tenkasi(D.S) 627851",
-"PermanentAddress": "3/280 Mail road, Karumbanoor, Kalathimadam(p.o), Alangulam(T.K), Tenkasi(D.S) 627851",
-"PAN": "ALMAPK2793K",
-"Aadhar": "343612620625",
-"BloodGroup": "AB+Ve"
-},
-{
-"EmpID": "B23039",
-"EmployeeName": "Pagadavarapu Dileep",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "8008800938",
-"Email": "pagadavarapudileep@gmail.com",
-"CurrentAddress": "4-96 Kondakodima, Wyra, Khammam,Telangana, 507165",
-"PermanentAddress": "4-96 Kondakodima, Wyra, Khammam,Telangana, 507165",
-"PAN": "CGRPP4241B",
-"Aadhar": "834086357902",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B23040",
-"EmployeeName": "Thulasiraja M",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9952008004",
-"Email": "robinsondear@gmail.com",
-"CurrentAddress": "14/3, V G N Street, Devaraj Nagar, Saligramam, Chennai-93",
-"PermanentAddress": "14/3, V G N Street, Devaraj Nagar, Saligramam, Chennai-93",
-"PAN": "AGWPT5638D",
-"Aadhar": "949841378913",
-"BloodGroup": "A+Ve"
-},
-{
-"EmpID": "B23043",
-"EmployeeName": "Priyanka Pannerselvam",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "6374325863",
-"Email": "Priyanka17jeppiar@gmail.com",
-"CurrentAddress": "No:48 Bajanai Kovil street Melnaduvakarai Anna Nagar",
-"PermanentAddress": "No:48 Bajanai Kovil street Melnaduvakarai Anna Nagar",
-"PAN": "GGKPP2127K",
-"Aadhar": "688710246748",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B23044",
-"EmployeeName": "Bijeta Dubey",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9537799745",
-"Email": "bijetadubey@gmail.com",
-"CurrentAddress": "Near dada darbar Ekta colony Sagar (Madhya Pradesh)",
-"PermanentAddress": "Near dada darbar Ekta colony Sagar (Madhya Pradesh)",
-"PAN": "ALVPD5898B",
-"Aadhar": "260481027160",
-"BloodGroup": "A+Ve"
-},
-{
-"EmpID": "B23047",
-"EmployeeName": "Shankar Kumar M",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "7397321273",
-"Email": "Shankarkumarsk1912@gmail.com",
-"CurrentAddress": "No:217, 6th Block, Kannadasan Nagar, Kodungaiyur, Chennai-600118.",
-"PermanentAddress": "No:217, 6th Block, Kannadasan Nagar, Kodungaiyur, Chennai-600118.",
-"PAN": "LQKPS0583F",
-"Aadhar": "674626871763",
-"BloodGroup": "B+Ve"
-},
-{
-"EmpID": "B23048",
-"EmployeeName": "Kirankumar B",
-"Dept": "C.M.S.",
-"Domain": "A.W.S.",
-"Certifications": "AWS Certified Solutions Architect - Associate",
-"PhoneNumber": "7358021638",
-"Email": "KiranKumar21638@gmail.com",
-"CurrentAddress": "35 west street puliyur kurinjipadi(TK) cuddalore(Dist)- 607301",
-"PermanentAddress": "35 west street puliyur kurinjipadi(TK) cuddalore(Dist)- 607301",
-"PAN": "BBGPK7792B",
-"Aadhar": "398377816124",
-"BloodGroup": "O+Ve"
-},
-{
-"EmpID": "B23054",
-"EmployeeName": "Dharanitharan Murugan",
-"Dept": "",
-"Domain": "",
-"Certifications": "",
-"PhoneNumber": "9659459414",
-"Email": "dharanithedev@gmail.com",
-"CurrentAddress": "2/333, Avvaiyar Street, M A nagar, Redhills, Chennai - 600052",
-"PermanentAddress": "2/333, Avvaiyar Street, M A nagar, Redhills, Chennai - 600052",
-"PAN": "CCJPD9407P",
-"Aadhar": "249465136234",
-"BloodGroup": "A1+Ve"
-}];
+// (Optional) define an interface for clarity (TS)
+interface Employee {
+  _id: string;
+  EmpID?: string;
+  EmployeeName?: string;
+  PhoneNumber?: string;
+  Email?: string;
+  BloodGroup?: string;
+  CurrentAddress?: string;
+  PermanentAddress?: string;
+  PAN?: string;
+  Aadhar?: string;
+  EmergencyContact?: string;
+  SpecialSkill?: string;
+  [key: string]: any;
+}
+
+const formsData = {
+  onboarding: [
+    { name: "Access Request Form", fileName: "Access Request Form (1).docx", updated: "Jun 16, 2025", purpose: "For email Id & other access creation" },
+    { name: "Employee Information Form", fileName: "Employee_Information_FormV1.0(1).docx", updated: "Jun 16, 2025", purpose: "Employee master details" },
+    { name: "Form11", fileName: "Form11.pdf", updated: "Jun 16, 2025", purpose: "Provident Fund eligibility and compliance under EPF regulations." },
+    { name: "Gratuity Nomination Form", fileName: "Gratuity_Nomination_Form.pdf", updated: "Jun 16, 2025", purpose: "To nominate a beneficiary to receive gratuity benefits in the absence of the employee" },
+    { name: "Insurance Enrolment Form", fileName: "Insurance_Enrolment_Form.pdf", updated: "Jun 16, 2025", purpose: "To capture employee & dependents details for coverage under the Group Mediclaim Policy" },
+    { name: "Letter of Undertaking Onboarding", fileName: "Letter_of_Undertaking_Onboarding.pdf", updated: "Jun 16, 2025", purpose: "To confirm the employee’s acceptance of company policies, rules, and responsibilities." },
+  ],
+  bgv: [
+    { name: "Candidate Information form", fileName: "Candidate_Information_form_BGV.pdf", updated: "Jun 16, 2025", purpose: "To Collect personal, academic, and professional details required for background verification." },
+    { name: "Letter of Authorization", fileName: "Letter_of_Authorization_BGV.pdf", updated: "Jun 16, 2025", purpose: "To grant consent for verifying the candidate’s details" },
+  ],
+  rewards: [
+    { name: "Nomination Form - Star of the Quarter", fileName: "Nomination_Star_Quarter.pdf", updated: "Jun 16, 2025" },
+    { name: "Nomination Form - Team of the Quarter", fileName: "Nomination_Team_Quarter.pdf", updated: "Jun 16, 2025" },
+    { name: "Nomination Form - Associate of the Year", fileName: "Nomination_Associate_Year.pdf", updated: "Jun 16, 2025" },
+    { name: "Nomination Form - Team of the Year", fileName: "Nomination_Team_Year.pdf", updated: "Jun 16, 2025" },
+  ],
+  others: [
+    { name: "Contract Invoice Template ", fileName: "Contract_Invoice_Template.pdf", updated: "Jun 16, 2025", purpose: "To standardize billing details for services rendered under a contract." },
+    { name: "Contract Timesheet Template", fileName: "Contract_Timesheet_Template.pdf", updated: "Jun 16, 2025", purpose: "To record and track hours worked by contract employees for payment processing." },
+    { name: "Expense Reimbursement Form ", fileName: "Expense Reimbursement Form.docx", updated: "Jun 16, 2025", purpose: "To claim and process repayment of business/certifications related expenses incurred by employees." },
+    { name: "Induction Feedback Form", fileName: "Induction_Feedback_Form.pdf", updated: "Jun 16, 2025", purpose: "To gather employee feedback on the onboarding and induction program for improvement." },
+    { name: "Intern to Onroll Movement Template", fileName: "Intern_to_Onroll_Template.pdf", updated: "Jun 16, 2025", purpose: "To formalize and document the transition of an intern to a full-time employee." },
+    { name: "PIP Letter Template", fileName: "PIP_Letter_Template_2.pdf", updated: "Jun 16, 2025", purpose: "To outline performance concerns and set clear goals for employee improvement within a defined timeframe." },
+  ],
+  separation: [
+    { name: "Associate Clearance Form", fileName: "Associate_Clearance_Form.pdf", updated: "Jun 16, 2025", purpose: "To ensure all company assets and responsibilities are settled before an employee’s departure." },
+    { name: "Exit Interview Template", fileName: "Exit_Interview_Template.pdf", updated: "Jun 16, 2025", purpose: "To capture feedback from departing employees to identify areas for organizational improvement." },
+    { name: "Gratuity Declaration Form", fileName: "Gratuity_Declaration_Form.pdf", updated: "Jun 16, 2025", purpose: "To confirm and process the employee’s eligibility and claim for gratuity benefits." },
+    { name: "Leave Encashment Declaration Form", fileName: "Leave_Encashment_Declaration_Form.pdf", updated: "Jun 16, 2025", purpose: "To document and process payment for an employee’s unused leave balance." },
+    { name: "Letter of Undertaking Separation", fileName: "Letter_of_Undertaking(2).pdf", updated: "Jun 16, 2025", purpose: "To confirm the employee’s compliance with pending obligations and company policies after resignation." },
+  ],
+};
+
+const team = [
+  {
+    name: "Sivakumar Natarajan",
+    role: "Head - People & Culture",
+    email: "siva.kumar@securekloud.com",
+    phone: "9940103400",
+  },
+  {
+    name: "Cynthia V",
+    role: "Manager - H.R.",
+    email: "cynthia.v@securekloud.com",
+    phone: "9841550407",
+  },
+  {
+    name: "Ezhilarasi S",
+    role: "Lead - H.R.",
+    email: "ezhilarasi.sekar@securekloud.com",
+    phone: "8610841056",
+  },
+];
+// 🔍 Employee Directory Filters
+
+
+
 const HR = () => {
+// 🧩 Employee Directory (fetched from backend)
+const [employeeDirectory, setEmployeeDirectory] = useState([]);
+
+// 🔍 Employee Directory Filters
+const [selectedDepartment, setSelectedDepartment] = useState("");
+const [selectedBloodGroup, setSelectedBloodGroup] = useState("");
+const [skillsInput, setSkillsInput] = useState("");
+const [nameSearch, setNameSearch] = useState("");
+const [searchTerm, setSearchTerm] = useState(""); // ✅ keep this one
+const [useAndFilter, setUseAndFilter] = useState(false);
+
+const [loadingEmployees, setLoadingEmployees] = useState(true);
+const [errorEmployees, setErrorEmployees] = useState("");
+
+// 🔁 Fetch employee data from backend
+useEffect(() => {
+  const fetchEmployees = async () => {
+    try {
+      const res = await fetch("http://192.168.26.103:8000/api/employeedirectory");
+      if (!res.ok) throw new Error("Failed to fetch employee data");
+      const data = await res.json();
+      setEmployeeDirectory(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching employee data:", err);
+      setErrorEmployees("Unable to load employee directory. Please try again later.");
+    } finally {
+      setLoadingEmployees(false);
+    }
+  };
+
+  fetchEmployees();
+}, []);
+// 🧩 Apply filters
+const filteredEmployees = employeeDirectory.filter((emp) => {
+  const matchDept =
+    !selectedDepartment ||
+    emp.Dept === selectedDepartment ||
+    emp.department === selectedDepartment;
+
+  const matchBlood =
+    !selectedBloodGroup || emp.BloodGroup === selectedBloodGroup;
+
+  const skills = (
+    emp.SpecialSkill ||
+    emp.Tech1 ||
+    emp.Tech2 ||
+    ""
+  ).toLowerCase();
+  const inputSkills = skillsInput.toLowerCase().split(/[, ]+/).filter(Boolean);
+
+  let matchSkills = true;
+  if (inputSkills.length > 0) {
+    if (useAndFilter) {
+      matchSkills = inputSkills.every((skill) => skills.includes(skill));
+    } else {
+      matchSkills = inputSkills.some((skill) => skills.includes(skill));
+    }
+  }
+   // ✅ Name filter
+  const name = (emp.EmployeeName || "").toLowerCase();
+  const matchName = !searchTerm || name.includes(searchTerm.toLowerCase());
+
+
+  return matchDept && matchBlood && matchSkills;
+});
+
+
+// 🏢 Get unique departments dynamically
+const uniqueDepartments = Array.from(
+  new Set(
+    employeeDirectory
+      .map((emp) => emp.Department?.trim() || emp.department?.trim() || "")
+      .filter(Boolean)
+  )
+).sort();
+
+
+
+ 
+  const [showNominationForm, setShowNominationForm] = useState(false);
+  const [nominationData, setNominationData] = useState({
+    associateName: "",
+    doj: "",
+    designation: "",
+    project: "",
+    roleSince: "",
+    nominationPeriod: "",
+    accomplishments: {
+      exceptionalDeliverable: "",
+      resourceUtilization: "",
+      resourceProductivity: "",
+      teamKnowledge: "",
+      riskManagement: "",
+      customerFeedback: "",
+      teamBonding: "",
+      processCompliance: "",
+      thers: "",
+    },
+    nominatedBy: "",
+    nominatedByDesignation: "",
+    routedBy: "",
+    routedByDesignation: "",
+  });
+  // Star of the Quarter modal state
+  const [showStarNominationForm, setShowStarNominationForm] = useState(false);
+  const [starNominationData, setStarNominationData] = useState({
+    associateName: "",
+    doj: "",
+    designation: "",
+    project: "",
+    roleSince: "",
+    nominationPeriod: "",
+    accomplishments: {
+      exceptionalPerformance: "",
+      processCompliance: "",
+      initiatives: "",
+      learning: "",
+      knowledgeSharing: "",
+      policyAdherence: "",
+      clientAppreciation: "",
+      potential: "",
+      participation: "",
+      others: "",
+    },
+    nominatedBy: "",
+    nominatedByDesignation: "",
+    routedBy: "",
+    routedByDesignation: "",
+  });
+  // Associate of the Year modal state
+  const [showAssociateNominationForm, setShowAssociateNominationForm] = useState(false);
+  const [associateNominationData, setAssociateNominationData] = useState({
+    associateName: "",
+    doj: "",
+    designation: "",
+    project: "",
+    roleSince: "",
+    nominationPeriod: "",
+    accomplishments: {
+      starOfQuarter: "",
+      exceptionalPerformance: "",
+      initiatives: "",
+      learning: "",
+      knowledgeSharing: "",
+      policyAdherence: "",
+      processCompliance: "",
+      clientAppreciation: "",
+      potential: "",
+      participation: "",
+      impact: "",
+      others: "",
+    },
+    nominatedBy: "",
+    nominatedByDesignation: "",
+    routedBy: "",
+    routedByDesignation: "",
+  });
+  // Team of the Year modal state
+  const [showTeamYearNominationForm, setShowTeamYearNominationForm] = useState(false);
+  const [teamYearNominationData, setTeamYearNominationData] = useState({
+    project: "",
+    commencementDate: "",
+    numberOfMembers: "",
+    memberNames: "",
+    nominationPeriod: "",
+    previousNominations: "",
+    accomplishments: {
+      exceptionalDeliverable: "",
+      resourceUtilization: "",
+      resourceProductivity: "",
+      teamKnowledge: "",
+      riskManagement: "",
+      customerFeedback: "",
+      teamBonding: "",
+      processCompliance: "",
+      impact: "",
+      costEffective: "",
+      contribution: "",
+      others: "",
+    },
+    nominatedBy: "",
+    nominatedByDesignation: "",
+    routedBy: "",
+    routedByDesignation: "",
+  });
+  const [showCandidateInfoForm, setShowCandidateInfoForm] = useState(false);
+const [candidateInfoData, setCandidateInfoData] = useState({
+  candidateName: "",
+  fatherName: "",
+  dob: "",
+  mobile: "",
+  email: "",
+  pan: "",
+  passport: "",
+  ssn: "",
+  course: "",
+  registrationNo: "",
+  duration: "",
+  passingYear: "",
+  specialization: "",
+  college: "",
+  university: "",
+  companyName: "",
+  empId: "",
+  designation: "",
+  department: "",
+  employmentPeriod: "",
+  salary: "",
+  resignationReason: "",
+  reportingManager: "",
+  hrManager: "",
+});
+const [showAuthorizationForm, setShowAuthorizationForm] = useState(false);
+const [authorizationData, setAuthorizationData] = useState({
+  name: "",
+  date: "",
+  signature: "",
+});
+// Associate Clearance form state
+const [showAssociateClearanceForm, setShowAssociateClearanceForm] = useState(false);
+const [associateClearanceData, setAssociateClearanceData] = useState({
+  associateName: "",
+  associateId: "",
+  designation: "",
+  department: "",
+  dateOfJoining: "",
+  reportingTo: "",
+  dateOfResignation: "",
+  dateOfRelieving: "",
+  // Manager / Dept Head clearance
+  docAssetStatus: "Returned", // default
+  ktStatus: "Returned",
+  clientEmailStatus: "Returned",
+  clientWebStatus: "Returned",
+  otherToolsStatus: "Returned",
+  ktReceiver: "",
+  deptHeadSignature: "",
+  // IT clearance
+  loginCredentials: "Returned",
+  laptopStatus: "Returned",
+  emailAccess: "Disabled",
+  cloudAccess: "Disabled",
+  biometricAccess: "Disabled",
+  adDeactivation: "Disabled",
+  itSignature: "",
+  // Accounts
+  loansRemarks: "",
+  claimsRemarks: "",
+  accountsSignature: "",
+  // Admin
+  mobileStatus: "Returned",
+  keysStatus: "Returned",
+  adminSignature: "",
+  // HR
+  idCardStatus: "Returned",
+  timesheetStatus: "Disabled",
+  louStatus: "",
+  insuranceStatus: "",
+  taxDocsStatus: "",
+  hrSignature: "",
+  // Declaration & associate
+  declaration: `I state that I am aware of the Non-Compete, Non-Disclosure, Non-Solicitation Agreement signed along with the appointment letter is binding on me for period of twelve months from my last working day. I am also aware that it is my responsibility to submit all the Bills for reimbursement and Income Tax exemption based on my tax declaration. I am aware that my last month salary will be paid to me along with the Full and Final settlement.`,
+  associateSignature: "", // will store dataURL of image
+  associateAddress: "",
+  date: "",
+});
+
+const [showExitInterviewForm, setShowExitInterviewForm] = useState(false);
+const [exitInterviewData, setExitInterviewData] = useState({
+  associateName: "",
+  associateId: "",
+  designation: "",
+  bandLevel: "",
+  department: "",
+  departmentHead: "",
+  joiningDate: "",
+  exitSurveyDate: "",
+  reasonsForJoining: [],
+  reasonsForQuitting: [],
+  jobItself: {},
+  supervisor: {},
+  company: {},
+  remuneration: {},
+  management: {},
+  hrRemarks: "",
+  hrName: "",
+  date: "",
+});
+const handleSubmitExitInterview = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const data = Object.fromEntries(formData.entries());
+  data.reasons = formData.getAll("reasons");
+
+  await submitNomination("Exit Interview Survey", data);
+  setShowExitInterviewForm(false);
+};
+
+const [showGratuityForm, setShowGratuityForm] = useState(false);
+const [gratuityData, setGratuityData] = useState({
+  employeeName: "",
+  employeeId: "",
+  address: "",
+  declarationOption: "A", // or "B"
+  gratuityAmount: "",
+  date: "",
+  place: "",
+  signature: "",
+});
+const [showLeaveEncashForm, setShowLeaveEncashForm] = useState(false);
+const [leaveEncashData, setLeaveEncashData] = useState({
+  employeeName: "",
+  employeeId: "",
+  address: "",
+  declarationOption: "A",
+  exemptionAmount: "",
+  date: "",
+  place: "",
+  signature: "",
+});
+
+
+const [showUndertakingForm, setShowUndertakingForm] = useState(false);
+const [undertakingData, setUndertakingData] = useState({
+  date: "",
+  associateName: "",
+  relation: "",
+  relativeName: "",
+  address: "",
+  designation: "",
+  joiningDate: "",
+  resignationDate: "",
+  isDirector: false,
+  signature: "",
+  place: "Chennai",
+});
+const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+const [invoiceData, setInvoiceData] = useState({
+  invoiceNumber: "",
+  invoiceDate: "",
+  consultantName: "",
+  consultantAddress: "",
+  consultantMobile: "",
+  services: [
+    { description: "", hours: 0, rate: 0, amount: 0 }
+  ],
+  bankName: "",
+  bankBranch: "",
+  ifscCode: "",
+  accountNumber: "",
+  panNumber: "",
+  signature: ""
+});
+const [showTimesheetForm, setShowTimesheetForm] = useState(false);
+const [timesheetData, setTimesheetData] = useState({
+  consultantName: "",
+  entries: [
+    { date: "", module: "", hours: 0 }
+  ],
+  description: ""
+});
+const [showExpenseForm, setShowExpenseForm] = useState(false);
+const [expenseData, setExpenseData] = useState({
+  employeeName: "",
+  empId: "",
+  managerName: "",
+  department: "",
+  fromDate: "",
+  toDate: "",
+  businessPurpose: "",
+  expenses: [
+    { date: "", description: "", category: "", cost: 0 }
+  ],
+  cashAdvance: 0,
+  receipts: [],
+  employeeSignature: "",
+  employeeDate: "",
+  approvalSignature: "",
+  approvalDate: ""
+});
+const [showInductionForm, setShowInductionForm] = useState(false);
+const [inductionData, setInductionData] = useState({
+  associateName: "",
+  employeeNumber: "",
+  designation: "",
+  department: "",
+  trainers: "",
+  trainingDate: "",
+  responses: Array(6).fill(""),
+  ratings: Array(6).fill(0),
+  suggestions: "",
+  overall: "",
+  comments: "",
+  signature: "",
+  date: ""
+});
+const [showInternOnrollForm, setShowInternOnrollForm] = useState(false);
+const [internOnrollData, setInternOnrollData] = useState({
+  internId: "",
+  internName: "",
+  joiningDate: "",
+  completionDate: "",
+  projectTitle: "",
+  department: "",
+  reportingManager: "",
+  departmentHead: "",
+  onrollDate: "",
+  ratings: {
+    learnability: 0,
+    technical: 0,
+    responsibility: 0,
+    attendance: 0,
+    teamwork: 0,
+    attitude: 0,
+  },
+  recommendation: "",
+  justification: "",
+  signature: "",
+  date: ""
+});
+const [showPipForm, setShowPipForm] = useState(false);
+const [pipData, setPipData] = useState({
+  date: "",
+  employeeName: "",
+  employeeId: "",
+  designation: "",
+  department: "",
+  manager: "",
+  concerns: "",
+  improvementAreas: "",
+  goals: "",
+  support: "",
+  reviewStart: "",
+  reviewEnd: "",
+  reviewFrequency: "",
+  employeeComments: "",
+  employeeSignature: "",
+  employeeDate: "",
+  managerSignature: "",
+  managerDate: "",
+  hrSignature: "",
+  hrDate: ""
+});
+
+
+
+
+
+
+
+
+
+
   const [showPayrollModal, setShowPayrollModal] = useState(false);
   const [showBenefitsModal, setShowBenefitsModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [activeTab, setActiveTab] = useState("resources");
   const [activeFormTab, setActiveFormTab] = useState("onboarding");
   const [docToView, setDocToView] = useState(null);
+  const [docContent, setDocContent] = useState(null); // For rendered .docx HTML
+  const [isDocx, setIsDocx] = useState(false); // Flag for .docx files
   const [showDocModal, setShowDocModal] = useState(false);
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
-  {/*
-    sample */}
-  const formsData = {
-    "onboarding": [
-      { name: "Access Request Form", fileName: "Access_Request_Form.pdf", updated: "Jun 16, 2025" },
-      { name: "Employee Information Form", fileName: "Employee_Information_Form.pdf", updated: "Jun 16, 2025" },
-      { name: "Form11", fileName: "Form11.pdf", updated: "Jun 16, 2025" },
-      { name: "Gratuity Nomination Form", fileName: "Gratuity_Nomination_Form.pdf", updated: "Jun 16, 2025" },
-      { name: "Insurance Enrolment Form", fileName: "Insurance_Enrolment_Form.pdf", updated: "Jun 16, 2025" },
-      { name: "Letter of Undertaking Onboarding", fileName: "Letter_of_Undertaking_Onboarding.pdf", updated: "Jun 16, 2025" },
-    ],
-    "bgv": [
-      { name: "Candidate Information form", fileName: "Candidate_Information_form_BGV.pdf", updated: "Jun 16, 2025" },
-      { name: "Letter of Authorization", fileName: "Letter_of_Authorization_BGV.pdf", updated: "Jun 16, 2025" },
-    ],
-    "rewards": [
-      { name: "Nomination Form - Associate of the Year", fileName: "Nomination_Associate_Year.pdf", updated: "Jun 16, 2025" },
-      { name: "Nomination Form - Star of the Quarter", fileName: "Nomination_Star_Quarter.pdf", updated: "Jun 16, 2025" },
-      { name: "Nomination Form - Team of the Quarter", fileName: "Nomination_Team_Quarter.pdf", updated: "Jun 16, 2025" },
-      { name: "Nomination Form - Team of the Year", fileName: "Nomination_Team_Year.pdf", updated: "Jun 16, 2025" },
-    ],
-    "others": [
-      { name: "Contract Invoice Template ", fileName: "Contract_Invoice_Template.pdf", updated: "Jun 16, 2025" },
-      { name: "Contract Timesheet Template", fileName: "Contract_Timesheet_Template.pdf", updated: "Jun 16, 2025" },
-      { name: "Expense Reimbursement Form 3", fileName: "Expense_Reimbursement_Form_3.pdf", updated: "Jun 16, 2025" },
-      { name: "Induction Feedback Form", fileName: "Induction_Feedback_Form.pdf", updated: "Jun 16, 2025" },
-      { name: "Intern to Onroll Movement Template", fileName: "Intern_to_Onroll_Template.pdf", updated: "Jun 16, 2025" },
-      { name: "PIP Letter Template 2", fileName: "PIP_Letter_Template_2.pdf", updated: "Jun 16, 2025" },
-    ],
-    "separation": [
-      { name: "Associate Clearance Form", fileName: "Associate_Clearance_Form.pdf", updated: "Jun 16, 2025" },
-      { name: "Exit Interview Template", fileName: "Exit_Interview_Template.pdf", updated: "Jun 16, 2025" },
-      { name: "Gratuity Declaration Form", fileName: "Gratuity_Declaration_Form.pdf", updated: "Jun 16, 2025" },
-      { name: "Leave Encashment Declaration Form", fileName: "Leave_Encashment_Declaration_Form.pdf", updated: "Jun 16, 2025" },
-      { name: "Letter of Undertaking", fileName: "Letter_of_Undertaking.pdf", updated: "Jun 16, 2025" },
-    ],
-  };
-
-  const team = [
-    {
-      name: "Sivakumar Natarajan",
-      role: "Head - People & Culture",
-      email: "siva.kumar@securekloud.com",
-      phone: "9940103400",
-    },
-    {
-      name: "Cynthia V",
-      role: "Manager - H.R.",
-      email: "cynthia.v@securekloud.com",
-      phone: "9841550407",
-    },
-    {
-      name: "Ezhilarasi S",
-      role: "Lead - H.R.",
-      email: "ezhilarasi.sekar@securekloud.com",
-      phone: "8610841056",
-    },
-  ];
 
   // Map HR team to employee directory for email/phone where applicable
   const enrichedEmployeeDirectory = employeeDirectory.map(emp => {
@@ -1445,9 +585,28 @@ const HR = () => {
     };
   });
 
-  const handleView = (fileName) => {
+  const handleView = async (fileName) => {
     if (fileName) {
-      setDocToView(`/files/${fileName}`);
+      const filePath = `/files/${fileName}`;
+
+
+      setDocToView(filePath);
+      if (fileName.endsWith('.docx')) {
+        setIsDocx(true);
+        try {
+          const response = await fetch(filePath);
+          const arrayBuffer = await response.arrayBuffer();
+          const result = await mammoth.convertToHtml({ arrayBuffer });
+          setDocContent(result.value);
+        } catch (error) {
+          console.error("Error rendering .docx:", error);
+          alert("Failed to render .docx file.");
+          return;
+        }
+      } else {
+        setIsDocx(false);
+        setDocContent(null);
+      }
       setShowDocModal(true);
     } else {
       alert("File not found for: " + fileName);
@@ -1466,37 +625,104 @@ const HR = () => {
       alert("File not found for: " + fileName);
     }
   };
+  const handleSubmit = (fileName) => {
+    if (fileName === "Nomination_Team_Quarter.pdf") {
+      setShowNominationForm(true);
+    } else if (fileName === "Nomination_Star_Quarter.pdf") {
+      setShowStarNominationForm(true);
+    } else if (fileName === "Nomination_Associate_Year.pdf") {
+      setShowAssociateNominationForm(true);
+    } else if (fileName === "Nomination_Team_Year.pdf") {
+      setShowTeamYearNominationForm(true);
+    }
+    else if (fileName === "Candidate_Information_form_BGV.pdf") {
+  setShowCandidateInfoForm(true);
+}
+else if (fileName === "Letter_of_Authorization_BGV.pdf") {
+  setShowAuthorizationForm(true);
+}
+else if (fileName === "Associate_Clearance_Form.pdf") {
+  setShowAssociateClearanceForm(true);
+}
+else if (fileName === "Exit_Interview_Template.pdf") {
+  setShowExitInterviewForm(true);
+}
+else if (fileName === "Gratuity_Declaration_Form.pdf") {
+  setShowGratuityForm(true);
+}
+else if (fileName === "Leave_Encashment_Declaration_Form.pdf") {
+  setShowLeaveEncashmentForm(true);
+}
 
-  const renderFormTabContent = (tabForms) => (
+else if (fileName === "Contract_Invoice_Template.pdf") {
+  setShowInvoiceForm(true);
+}
+else if (fileName === "Contract_Timesheet_Template.pdf") {
+  setShowTimesheetForm(true);
+}
+else if (fileName === "Expense_Reimbursement_Form.pdf") {
+  setShowExpenseForm(true);
+}
+else if (fileName === "Induction_Feedback_Form.pdf") {
+  setShowInductionForm(true);
+}
+else if (fileName === "Intern_Onroll_Movement_Template.pdf") {
+  setShowInternOnrollForm(true);
+}
+else if (fileName === "PIP_Letter_Template.pdf") {
+  setShowPipForm(true);
+}
+else if (fileName === "Expense Reimbursement Form.docx") {
+  setShowExpenseForm(true);
+}
+else if (fileName === "Intern_to_Onroll_Template.pdf") {
+  setShowInternOnrollForm(true);
+}
+else if (fileName === "PIP_Letter_Template_2.pdf") {
+  setShowPipForm(true);
+}
+else if (fileName === "Letter_of_Undertaking(2).pdf") {
+  setShowUndertakingForm(true);
+}
+
+  };
+
+  const renderFormTabContent = (tabForms, tabName) => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {tabForms.map((form, index) => (
-        <Card
-          key={index}
-          className="p-2 text-xs space-y-0.5 shadow-sm border rounded-md"
-        >
-          <CardHeader className="pb-2">
+        <Card key={index} className="p-2 text-xs space-y-0.5 shadow-sm border rounded-md h-full flex flex-col">
+          <CardHeader className="pb-2 flex-grow">
             <CardTitle>{form.name}</CardTitle>
+            {form.purpose && <CardDescription>{form.purpose}</CardDescription>}
             <CardDescription>Last updated: {form.updated}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex space-x-2">
+          <CardContent className="flex-shrink-0 pt-0">
+            <div className="flex justify-center space-x-2">
               {form.fileName && (
                 <>
-                  {form.fileName.endsWith(".pdf") && (
-                    <button
-                      onClick={() => handleView(form.fileName)}
-                      className="text-sm px-2 py-1 bg-blue-100 text-blue-800 rounded-md"
-                    >
-                      View
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleView(form.fileName)}
+                    className="text-sm px-2 py-1 bg-blue-100 text-blue-800 rounded-md flex items-center"
+                    title="View"
+                  >
+                    <FiEye className="w-4 h-4" />
+                  </button>
                   <a
                     href={`/files/${form.fileName}`}
                     download
-                    className="text-sm px-2 py-1 bg-gray-100 text-gray-800 rounded-md"
+                    className="text-sm px-2 py-1 bg-gray-100 text-gray-800 rounded-md flex items-center"
+                    title="Download"
                   >
-                    Download
+                    <FiDownload className="w-4 h-4" />
                   </a>
+                  
+                   <button
+  onClick={() => handleSubmit(form.fileName)}
+  className="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-md"
+>
+  Submit
+</button>
+
                 </>
               )}
             </div>
@@ -1513,22 +739,22 @@ const HR = () => {
         <TabsTrigger value="bgv">BGV Forms</TabsTrigger>
         <TabsTrigger value="rewards">Rewards & Recognition</TabsTrigger>
         <TabsTrigger value="others">Others</TabsTrigger>
-        <TabsTrigger value="separation">Separation</TabsTrigger>
+        <TabsTrigger value="separation">Exit Forms</TabsTrigger>
       </TabsList>
       <TabsContent value="onboarding" className="pt-6">
-        {renderFormTabContent(formsData["onboarding"])}
+        {renderFormTabContent(formsData.onboarding, "onboarding")}
       </TabsContent>
       <TabsContent value="bgv" className="pt-6">
-        {renderFormTabContent(formsData["bgv"])}
+        {renderFormTabContent(formsData.bgv, "bgv")}
       </TabsContent>
       <TabsContent value="rewards" className="pt-6">
-        {renderFormTabContent(formsData["rewards"])}
+        {renderFormTabContent(formsData.rewards, "rewards")}
       </TabsContent>
       <TabsContent value="others" className="pt-6">
-        {renderFormTabContent(formsData["others"])}
+        {renderFormTabContent(formsData.others, "others")}
       </TabsContent>
       <TabsContent value="separation" className="pt-6">
-        {renderFormTabContent(formsData["separation"])}
+        {renderFormTabContent(formsData.separation, "separation")}
       </TabsContent>
     </Tabs>
   );
@@ -1550,10 +776,11 @@ const HR = () => {
         <TabsContent value="resources" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              {
+             {
                 title: "Employee Handbook",
                 description: "Company policies and procedures",
                 content: "Access the latest employee handbook containing all company policies, procedures, and guidelines.",
+                fileName: "Employee Handbook SecureKloud 2025 V1.0 1.pdf",
               },
               {
                 title: "Benefits Information",
@@ -1595,6 +822,8 @@ const HR = () => {
                         setShowLeaveModal(true);
                       } else if (card.title === "Employee Directory") {
                         setShowEmployeeModal(true);
+                      } else if (card.title === "Employee Handbook" && card.fileName) {
+                        handleView(card.fileName);
                       }
                     }}
                   >
@@ -1632,6 +861,2945 @@ const HR = () => {
           {renderFormTabs()}
         </TabsContent>
       </Tabs>
+
+      {/* Nomination Form Modal */}
+      <Dialog open={showNominationForm} onOpenChange={setShowNominationForm}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nomination Form - Team of the Quarter</DialogTitle>
+            <DialogDescription>
+              <div>Version No: 1.0</div>
+              <div>Version Date: 14-Jan-21</div>
+              <div>Please fill in the details below</div>
+            </DialogDescription>
+          </DialogHeader>
+
+          <form className="space-y-4 p-4">
+            {/* Team Details */}
+            <h3 className="font-bold">TEAM DETAILS</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium">Name of the Project</label>
+                <input
+                  type="text"
+                  value={nominationData.project}
+                  onChange={(e) => setNominationData({ ...nominationData, project: e.target.value })}
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Date of Commencement</label>
+                <input
+                  type="date"
+                  value={nominationData.doj}
+                  onChange={(e) => setNominationData({ ...nominationData, doj: e.target.value })}
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Number of Members</label>
+                <input
+                  type="text"
+                  value={nominationData.roleSince}
+                  onChange={(e) => setNominationData({ ...nominationData, roleSince: e.target.value })}
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Names of Members</label>
+                <input
+                  type="text"
+                  value={nominationData.nominationPeriod}
+                  onChange={(e) => setNominationData({ ...nominationData, nominationPeriod: e.target.value })}
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+            </div>
+
+            {/* Criteria Table */}
+            <h3 className="font-bold">CRITERIA AND ACCOMPLISHMENTS</h3>
+            <div className="max-h-60 overflow-y-auto border rounded">
+              <table className="w-full border-collapse">
+                <thead className="sticky top-0 bg-blue-600 text-white">
+                  <tr>
+                    <th className="p-2">SL. NO.</th>
+                    <th className="p-2">CRITERIA</th>
+                    <th className="p-2">ACCOMPLISHMENT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { sl: "01", criteria: "Consistently Exceptional Deliverable", key: "exceptionalDeliverable" },
+                    { sl: "02", criteria: "Utilization of Resources", key: "resourceUtilization" },
+                    { sl: "03", criteria: "Productivity of Resources", key: "resourceProductivity" },
+                    { sl: "04", criteria: "Knowledge within the team", key: "teamKnowledge" },
+                    { sl: "05", criteria: "Risk Management", key: "riskManagement" },
+                    { sl: "06", criteria: "Customer Satisfaction Report / Feedback", key: "customerFeedback" },
+                    { sl: "07", criteria: "Team Bonding / Motivation", key: "teamBonding" },
+                    { sl: "08", criteria: "Process Compliance / Quality of Work", key: "processCompliance" },
+                    { sl: "09", criteria: "Others, if any", key: "others" },
+                  ].map((item) => (
+                    <tr key={item.sl} className="border-t">
+                      <td className="p-2">{item.sl}</td>
+                      <td className="p-2">{item.criteria}</td>
+                      <td className="p-2">
+                        <textarea
+                          className="w-full border p-2 rounded"
+                          value={nominationData.accomplishments[item.key] || ""}
+                          onChange={(e) =>
+                            setNominationData({
+                              ...nominationData,
+                              accomplishments: {
+                                ...nominationData.accomplishments,
+                                [item.key]: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Nomination Footer */}
+            <h3 className="font-bold">NOMINATION DETAILS</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium">Nominated By</label>
+                <input
+                  type="text"
+                  value={nominationData.nominatedBy}
+                  onChange={(e) => setNominationData({ ...nominationData, nominatedBy: e.target.value })}
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Designation</label>
+                <input
+                  type="text"
+                  value={nominationData.nominatedByDesignation}
+                  onChange={(e) => setNominationData({ ...nominationData, nominatedByDesignation: e.target.value })}
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Routed By</label>
+                <input
+                  type="text"
+                  value={nominationData.routedBy}
+                  onChange={(e) => setNominationData({ ...nominationData, routedBy: e.target.value })}
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Designation</label>
+                <input
+                  type="text"
+                  value={nominationData.routedByDesignation}
+                  onChange={(e) => setNominationData({ ...nominationData, routedByDesignation: e.target.value })}
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+            </div>
+      <button
+  type="button"
+  onClick={async () => {
+    try {
+    const mappedData = {
+  type: "Team of the Quarter",
+  formData: {
+    project_name: nominationData.project,
+    date_commencement: nominationData.doj, // from input
+    number_of_members: nominationData.roleSince, // from input
+    names_of_members: nominationData.nominationPeriod, // from input
+    nomination_period: nominationData.nominationPeriod,
+
+    a_deliverable: nominationData.accomplishments?.exceptionalDeliverable,
+    a_utilization: nominationData.accomplishments?.resourceUtilization,
+    a_productivity: nominationData.accomplishments?.resourceProductivity,
+    a_knowledge: nominationData.accomplishments?.teamKnowledge,
+    a_risk: nominationData.accomplishments?.riskManagement,
+    a_customer_sat: nominationData.accomplishments?.customerFeedback,
+    a_team_bonding: nominationData.accomplishments?.teamBonding,
+    a_compliance: nominationData.accomplishments?.processCompliance,
+    a_others: nominationData.accomplishments?.others,
+
+    nominated_by: nominationData.nominatedBy,
+    nominator_designation: nominationData.nominatedByDesignation,
+    routed_by: nominationData.routedBy,
+    router_designation: nominationData.routedByDesignation,
+  },
+  submittedBy: nominationData.nominatedBy,
+};
+
+      console.log("Submitting Team Nomination:", mappedData);
+
+      const response = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mappedData),
+      });
+
+      const result = await response.json();
+      console.log("Response:", result);
+
+      if (response.ok) {
+        alert("✅ Team Nomination submitted successfully!");
+      } else {
+        alert(`❌ Failed to submit Team Nomination!\n${JSON.stringify(result)}`);
+      }
+    } catch (err) {
+      console.error("❌ Frontend Error:", err);
+      alert("Submission failed due to frontend error!");
+    }
+  }}
+  className="px-4 py-2 bg-green-600 text-white rounded"
+>
+  Submit Nomination
+</button>
+
+
+           
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Nomination Form - Star of the Quarter */}
+      <Dialog open={showStarNominationForm} onOpenChange={setShowStarNominationForm}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nomination Form - Star of the Quarter</DialogTitle>
+            <DialogDescription>
+              <p>Version No: 1.0</p>
+              <p>Version Date: 14-Jan-21</p>
+              <p>Please fill in the details below</p>
+            </DialogDescription>
+          </DialogHeader>
+
+          <form className="space-y-4 p-4">
+            {/* ASSOCIATE DETAILS */}
+            <h3 className="font-bold">ASSOCIATE DETAILS</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder="Associate Name"
+                value={starNominationData.associateName}
+                onChange={(e) =>
+                  setStarNominationData({ ...starNominationData, associateName: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="date"
+                placeholder="Date of Joining"
+                value={starNominationData.doj}
+                onChange={(e) =>
+                  setStarNominationData({ ...starNominationData, doj: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="text"
+                placeholder="Designation"
+                value={starNominationData.designation}
+                onChange={(e) =>
+                  setStarNominationData({ ...starNominationData, designation: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="text"
+                placeholder="Name of Project / Dept."
+                value={starNominationData.project}
+                onChange={(e) =>
+                  setStarNominationData({ ...starNominationData, project: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="text"
+                placeholder="In this Role Since"
+                value={starNominationData.roleSince}
+                onChange={(e) =>
+                  setStarNominationData({ ...starNominationData, roleSince: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="text"
+                placeholder="Nomination Period"
+                value={starNominationData.nominationPeriod}
+                onChange={(e) =>
+                  setStarNominationData({ ...starNominationData, nominationPeriod: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+              />
+            </div>
+
+            {/* CRITERIA */}
+            <h3 className="font-bold">CRITERIA AND ACCOMPLISHMENTS</h3>
+            <div className="max-h-60 overflow-y-auto border rounded">
+              <table className="w-full border-collapse">
+                <thead className="sticky top-0 bg-blue-600 text-white">
+                  <tr>
+                    <th className="p-2">Sl. No.</th>
+                    <th className="p-2">Criteria</th>
+                    <th className="p-2">Accomplishment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { sl: "01", label: "Consistently Exceptional Performance", key: "exceptionalPerformance" },
+                    { sl: "02", label: "Process Compliance / Quality of Work", key: "processCompliance" },
+                    { sl: "03", label: "Initiatives Rolled out", key: "initiatives" },
+                    { sl: "04", label: "Learning", key: "learning" },
+                    { sl: "05", label: "Knowledge Sharing / Training Imparted", key: "knowledgeSharing" },
+                    { sl: "06", label: "Awareness and Adherence to Policies", key: "policyAdherence" },
+                    { sl: "07", label: "Client Appreciation, if any", key: "clientAppreciation" },
+                    { sl: "08", label: "Potential Shown for the next role, if any", key: "potential" },
+                    { sl: "09", label: "Participation in Team / Organizational activities", key: "participation" },
+                    { sl: "10", label: "Others, if any", key: "others" },
+                  ].map((row) => (
+                    <tr key={row.sl} className="border-t">
+                      <td className="p-2">{row.sl}</td>
+                      <td className="p-2">{row.label}</td>
+                      <td className="p-2">
+                        <textarea
+                          className="w-full border p-2 rounded"
+                          value={starNominationData.accomplishments[row.key]}
+                          onChange={(e) =>
+                            setStarNominationData({
+                              ...starNominationData,
+                              accomplishments: {
+                                ...starNominationData.accomplishments,
+                                [row.key]: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* NOMINATION DETAILS */}
+            <h3 className="font-bold">NOMINATION DETAILS</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder="Nominated By"
+                value={starNominationData.nominatedBy}
+                onChange={(e) =>
+                  setStarNominationData({ ...starNominationData, nominatedBy: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="text"
+                placeholder="Designation"
+                value={starNominationData.nominatedByDesignation}
+                onChange={(e) =>
+                  setStarNominationData({ ...starNominationData, nominatedByDesignation: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="text"
+                placeholder="Routed By"
+                value={starNominationData.routedBy}
+                onChange={(e) =>
+                  setStarNominationData({ ...starNominationData, routedBy: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="text"
+                placeholder="Designation"
+                value={starNominationData.routedByDesignation}
+                onChange={(e) =>
+                  setStarNominationData({ ...starNominationData, routedByDesignation: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const res = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                   body: JSON.stringify({
+                   type: "Star of the Quarter",
+                   formData: {
+                   associate_name: starNominationData.associateName,
+                   doj: starNominationData.doj,
+                   designation: starNominationData.designation,
+                   project: starNominationData.project,
+                   role_since: starNominationData.roleSince,
+                   nomination_period: starNominationData.nominationPeriod,
+                   nominated_by: starNominationData.nominatedBy,
+                   nominated_by_designation: starNominationData.nominatedByDesignation,
+                   routed_by: starNominationData.routedBy,
+                   routed_by_designation: starNominationData.routedByDesignation,
+                   accomplishments: starNominationData.accomplishments,
+                  },
+                 submittedBy: starNominationData.nominatedBy,
+                  }),
+
+                  });
+                  const data = await res.json();
+                  if (data.success) {
+                    alert("Nomination submitted successfully!");
+                    setShowStarNominationForm(false);
+                  } else {
+                    alert("Error: " + (data.error || "unknown"));
+                  }
+                } catch (err) {
+                  console.error("❌ Frontend Error:", err);
+                  alert("Submission failed");
+                }
+              }}
+              className="px-4 py-2 bg-green-600 text-white rounded"
+            >
+              Submit Nomination
+            </button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Nomination Form - Associate of the Year */}
+      <Dialog open={showAssociateNominationForm} onOpenChange={setShowAssociateNominationForm}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nomination Form - Associate of the Year</DialogTitle>
+            <DialogDescription>
+              <p>Version No: 1.0</p>
+              <p>Version Date: 14-Jan-21</p>
+              <p>Please fill in the details below</p>
+            </DialogDescription>
+          </DialogHeader>
+
+          <form className="space-y-4 p-4">
+            {/* ASSOCIATE DETAILS */}
+            <h3 className="font-bold">ASSOCIATE DETAILS</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <input type="text" placeholder="Associate Name"
+                value={associateNominationData.associateName}
+                onChange={(e) => setAssociateNominationData({ ...associateNominationData, associateName: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="date" placeholder="Date of Joining"
+                value={associateNominationData.doj}
+                onChange={(e) => setAssociateNominationData({ ...associateNominationData, doj: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Designation"
+                value={associateNominationData.designation}
+                onChange={(e) => setAssociateNominationData({ ...associateNominationData, designation: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Name of Project / Dept."
+                value={associateNominationData.project}
+                onChange={(e) => setAssociateNominationData({ ...associateNominationData, project: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="In this Role Since"
+                value={associateNominationData.roleSince}
+                onChange={(e) => setAssociateNominationData({ ...associateNominationData, roleSince: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Nomination Period"
+                value={associateNominationData.nominationPeriod}
+                onChange={(e) => setAssociateNominationData({ ...associateNominationData, nominationPeriod: e.target.value })}
+                className="border p-2 rounded w-full" />
+            </div>
+
+            {/* CRITERIA */}
+            <h3 className="font-bold">CRITERIA AND ACCOMPLISHMENTS</h3>
+            <div className="max-h-60 overflow-y-auto border rounded">
+              <table className="w-full border-collapse">
+                <thead className="sticky top-0 bg-blue-600 text-white">
+                  <tr>
+                    <th className="p-2">Sl. No.</th>
+                    <th className="p-2">Criteria</th>
+                    <th className="p-2">Accomplishment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { sl: "01", label: "Nominated for Star of the Quarter", key: "starOfQuarter" },
+                    { sl: "02", label: "Consistently Exceptional Performance", key: "exceptionalPerformance" },
+                    { sl: "03", label: "Initiatives Rolled out", key: "initiatives" },
+                    { sl: "04", label: "Learning", key: "learning" },
+                    { sl: "05", label: "Knowledge Sharing / Training Imparted", key: "knowledgeSharing" },
+                    { sl: "06", label: "Awareness and Adherence to Policies", key: "policyAdherence" },
+                    { sl: "07", label: "Process Compliance / Quality of Work", key: "processCompliance" },
+                    { sl: "08", label: "Client Appreciation, if any", key: "clientAppreciation" },
+                    { sl: "09", label: "Potential Shown for the next role, if any", key: "potential" },
+                    { sl: "10", label: "Participation in Team / Organizational activities", key: "participation" },
+                    { sl: "11", label: "Impact on Project / Customer / Organization", key: "impact" },
+                    { sl: "12", label: "Others, if any", key: "others" },
+                  ].map((row) => (
+                    <tr key={row.sl} className="border-t">
+                      <td className="p-2">{row.sl}</td>
+                      <td className="p-2">{row.label}</td>
+                      <td className="p-2">
+                        <textarea
+                          className="w-full border p-2 rounded"
+                          value={associateNominationData.accomplishments[row.key]}
+                          onChange={(e) =>
+                            setAssociateNominationData({
+                              ...associateNominationData,
+                              accomplishments: {
+                                ...associateNominationData.accomplishments,
+                                [row.key]: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* NOMINATION DETAILS */}
+            <h3 className="font-bold">NOMINATION DETAILS</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <input type="text" placeholder="Nominated By"
+                value={associateNominationData.nominatedBy}
+                onChange={(e) => setAssociateNominationData({ ...associateNominationData, nominatedBy: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Designation"
+                value={associateNominationData.nominatedByDesignation}
+                onChange={(e) => setAssociateNominationData({ ...associateNominationData, nominatedByDesignation: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Routed By"
+                value={associateNominationData.routedBy}
+                onChange={(e) => setAssociateNominationData({ ...associateNominationData, routedBy: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Designation"
+                value={associateNominationData.routedByDesignation}
+                onChange={(e) => setAssociateNominationData({ ...associateNominationData, routedByDesignation: e.target.value })}
+                className="border p-2 rounded w-full" />
+            </div>
+
+           <button
+  type="button"
+  onClick={async () => {
+    try {
+     const mappedData = {
+  type: "Associate of the Year",
+  formData: {
+    associate_name: associateNominationData.associateName,
+    date_of_joining: associateNominationData.doj,
+    designation: associateNominationData.designation,
+    project_dept: associateNominationData.project,
+    role_since: associateNominationData.roleSince,
+    nomination_period: associateNominationData.nominationPeriod,
+
+    a_star_of_q: associateNominationData.accomplishments?.starOfQuarter,
+    a_performance: associateNominationData.accomplishments?.exceptionalPerformance,
+    a_initiatives: associateNominationData.accomplishments?.initiatives,
+    a_learning: associateNominationData.accomplishments?.learning,
+    a_sharing: associateNominationData.accomplishments?.knowledgeSharing,
+    a_policies: associateNominationData.accomplishments?.policyAdherence,
+    a_compliance: associateNominationData.accomplishments?.processCompliance,
+    a_client_appreciation: associateNominationData.accomplishments?.clientAppreciation,
+    a_potential: associateNominationData.accomplishments?.potential,
+    a_participation: associateNominationData.accomplishments?.participation,
+    a_impact: associateNominationData.accomplishments?.impact,
+    a_others: associateNominationData.accomplishments?.others,
+
+    nominated_by: associateNominationData.nominatedBy,
+    nominator_designation: associateNominationData.nominatedByDesignation,
+    routed_by: associateNominationData.routedBy,
+    router_designation: associateNominationData.routedByDesignation,
+  },
+  submittedBy: associateNominationData.nominatedBy,
+};
+
+
+      const response = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mappedData),
+      });
+
+      if (response.ok) {
+        alert("✅ Associate of the Year nomination submitted successfully!");
+      } else {
+        alert("❌ Submission failed!");
+      }
+    } catch (err) {
+      console.error("❌ Frontend Error:", err);
+      alert("Submission failed due to frontend error!");
+    }
+  }}
+  className="px-4 py-2 bg-green-600 text-white rounded"
+>
+  Submit Associate of the Year Nomination
+</button>
+
+
+          </form>
+        </DialogContent>
+      </Dialog>
+      {/* Nomination Form - Team of the Year */}
+      <Dialog open={showTeamYearNominationForm} onOpenChange={setShowTeamYearNominationForm}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nomination Form - Team of the Year</DialogTitle>
+            <DialogDescription>
+              <p>Version No: 1.0</p>
+              <p>Version Date: 14-Jan-21</p>
+              <p>Please fill in the details below</p>
+            </DialogDescription>
+          </DialogHeader>
+
+          <form className="space-y-4 p-4">
+            {/* TEAM DETAILS */}
+            <h3 className="font-bold">TEAM DETAILS</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <input type="text" placeholder="Name of the Project"
+                value={teamYearNominationData.project}
+                onChange={(e) => setTeamYearNominationData({ ...teamYearNominationData, project: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="date" placeholder="Date of Commencement"
+                value={teamYearNominationData.commencementDate}
+                onChange={(e) => setTeamYearNominationData({ ...teamYearNominationData, commencementDate: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Number of Members"
+                value={teamYearNominationData.numberOfMembers}
+                onChange={(e) => setTeamYearNominationData({ ...teamYearNominationData, numberOfMembers: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Names of Members"
+                value={teamYearNominationData.memberNames}
+                onChange={(e) => setTeamYearNominationData({ ...teamYearNominationData, memberNames: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Nomination Period"
+                value={teamYearNominationData.nominationPeriod}
+                onChange={(e) => setTeamYearNominationData({ ...teamYearNominationData, nominationPeriod: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Previous Nomination Details"
+                value={teamYearNominationData.previousNominations}
+                onChange={(e) => setTeamYearNominationData({ ...teamYearNominationData, previousNominations: e.target.value })}
+                className="border p-2 rounded w-full" />
+            </div>
+
+            {/* CRITERIA */}
+            <h3 className="font-bold">CRITERIA AND ACCOMPLISHMENTS</h3>
+            <div className="max-h-60 overflow-y-auto border rounded">
+              <table className="w-full border-collapse">
+                <thead className="sticky top-0 bg-blue-600 text-white">
+                  <tr>
+                    <th className="p-2">Sl. No.</th>
+                    <th className="p-2">Criteria</th>
+                    <th className="p-2">Accomplishment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { sl: "01", label: "Consistently Exceptional Deliverable", key: "exceptionalDeliverable" },
+                    { sl: "02", label: "Utilization of Resources", key: "resourceUtilization" },
+                    { sl: "03", label: "Productivity of Resources", key: "resourceProductivity" },
+                    { sl: "04", label: "Knowledge within the team", key: "teamKnowledge" },
+                    { sl: "05", label: "Risk Management", key: "riskManagement" },
+                    { sl: "06", label: "Customer Satisfaction Report / Feedback", key: "customerFeedback" },
+                    { sl: "07", label: "Team Bonding / Motivation", key: "teamBonding" },
+                    { sl: "08", label: "Process Compliance / Quality of Work", key: "processCompliance" },
+                    { sl: "09", label: "Impact on Project / Business / Customer", key: "impact" },
+                    { sl: "10", label: "Cost Effective Initiatives", key: "costEffective" },
+                    { sl: "11", label: "Contribution to Organizational Targets", key: "contribution" },
+                    { sl: "12", label: "Others, if any", key: "others" },
+                  ].map((row) => (
+                    <tr key={row.sl} className="border-t">
+                      <td className="p-2">{row.sl}</td>
+                      <td className="p-2">{row.label}</td>
+                      <td className="p-2">
+                        <textarea
+                          className="w-full border p-2 rounded"
+                          value={teamYearNominationData.accomplishments[row.key]}
+                          onChange={(e) =>
+                            setTeamYearNominationData({
+                              ...teamYearNominationData,
+                              accomplishments: {
+                                ...teamYearNominationData.accomplishments,
+                                [row.key]: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* NOMINATION DETAILS */}
+            <h3 className="font-bold">NOMINATION DETAILS</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <input type="text" placeholder="Nominated By"
+                value={teamYearNominationData.nominatedBy}
+                onChange={(e) => setTeamYearNominationData({ ...teamYearNominationData, nominatedBy: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Designation"
+                value={teamYearNominationData.nominatedByDesignation}
+                onChange={(e) => setTeamYearNominationData({ ...teamYearNominationData, nominatedByDesignation: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Routed By"
+                value={teamYearNominationData.routedBy}
+                onChange={(e) => setTeamYearNominationData({ ...teamYearNominationData, routedBy: e.target.value })}
+                className="border p-2 rounded w-full" />
+              <input type="text" placeholder="Designation"
+                value={teamYearNominationData.routedByDesignation}
+                onChange={(e) => setTeamYearNominationData({ ...teamYearNominationData, routedByDesignation: e.target.value })}
+                className="border p-2 rounded w-full" />
+            </div>
+
+           <button
+  type="button"
+  onClick={async () => {
+    try {
+      // 🔹 Map frontend camelCase data to backend snake_case format
+      const mappedData = {
+        type: "Team of the Year",
+        formData: {
+          project_name: teamYearNominationData.projectName,
+          date_commencement: teamYearNominationData.dateCommencement,
+          number_of_members: teamYearNominationData.numberOfMembers,
+          nomination_period: teamYearNominationData.nominationPeriod,
+          names_of_members: teamYearNominationData.namesOfMembers,
+          previous_nomination_details: teamYearNominationData.previousNominationDetails,
+
+          a_deliverable: teamYearNominationData.accomplishments?.deliverable,
+          a_utilization: teamYearNominationData.accomplishments?.utilization,
+          a_productivity: teamYearNominationData.accomplishments?.productivity,
+          a_knowledge: teamYearNominationData.accomplishments?.knowledge,
+          a_risk: teamYearNominationData.accomplishments?.risk,
+          a_customer_sat: teamYearNominationData.accomplishments?.customerSatisfaction,
+          a_team_bonding: teamYearNominationData.accomplishments?.teamBonding,
+          a_compliance: teamYearNominationData.accomplishments?.compliance,
+          a_impact: teamYearNominationData.accomplishments?.impact,
+          a_cost_effective: teamYearNominationData.accomplishments?.costEffective,
+          a_contribution: teamYearNominationData.accomplishments?.contribution,
+          a_others: teamYearNominationData.accomplishments?.others,
+
+          nominated_by: teamYearNominationData.nominatedBy,
+          nominator_designation: teamYearNominationData.nominatedByDesignation,
+          routed_by: teamYearNominationData.routedBy,
+          router_designation: teamYearNominationData.routedByDesignation,
+        },
+        submittedBy: teamYearNominationData.nominatedBy,
+      };
+
+      // 🔹 Send the mapped data to backend
+      const res = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mappedData),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("✅ Team of the Year Nomination submitted successfully!");
+        setShowTeamYearNominationForm(false);
+      } else {
+        alert("❌ Error: " + (data.error || "unknown"));
+      }
+    } catch (err) {
+      console.error("❌ Frontend Error:", err);
+      alert("Submission failed");
+    }
+  }}
+  className="px-4 py-2 bg-green-600 text-white rounded"
+>
+  Submit Nomination
+</button>
+
+
+          </form>
+        </DialogContent>
+      </Dialog>
+      {/* Candidate Information Form - BGV */}
+<Dialog open={showCandidateInfoForm} onOpenChange={setShowCandidateInfoForm}>
+  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Candidate Information Form</DialogTitle>
+      <DialogDescription>
+        Please fill in all mandatory details for background verification
+      </DialogDescription>
+    </DialogHeader>
+
+    <form className="space-y-6 p-4">
+      {/* Mandatory Fields */}
+      <h3 className="font-semibold text-lg">Mandatory Information</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <input type="text" placeholder="Candidate Name"
+          value={candidateInfoData.candidateName}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, candidateName: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Father's Name"
+          value={candidateInfoData.fatherName}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, fatherName: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="date" placeholder="Date of Birth"
+          value={candidateInfoData.dob}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, dob: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="tel" placeholder="Mobile No."
+          value={candidateInfoData.mobile}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, mobile: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="email" placeholder="Email ID"
+          value={candidateInfoData.email}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, email: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="PAN Card No."
+          value={candidateInfoData.pan}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, pan: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Passport No."
+          value={candidateInfoData.passport}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, passport: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="SSN No (if applicable)"
+          value={candidateInfoData.ssn}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, ssn: e.target.value })}
+          className="border p-2 rounded w-full" />
+      </div>
+
+      {/* Education */}
+      <h3 className="font-semibold text-lg">Education Information</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <input type="text" placeholder="Course Name"
+          value={candidateInfoData.course}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, course: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Registration No."
+          value={candidateInfoData.registrationNo}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, registrationNo: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Duration (From / To)"
+          value={candidateInfoData.duration}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, duration: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Year of Passing"
+          value={candidateInfoData.passingYear}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, passingYear: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Specialization"
+          value={candidateInfoData.specialization}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, specialization: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="College / Institution"
+          value={candidateInfoData.college}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, college: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="University"
+          value={candidateInfoData.university}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, university: e.target.value })}
+          className="border p-2 rounded w-full" />
+      </div>
+
+      {/* Employment */}
+      <h3 className="font-semibold text-lg">Previous Employment (Optional)</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <input type="text" placeholder="Company Name"
+          value={candidateInfoData.companyName}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, companyName: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Employee ID"
+          value={candidateInfoData.empId}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, empId: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Designation"
+          value={candidateInfoData.designation}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, designation: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Department"
+          value={candidateInfoData.department}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, department: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Period of Employment"
+          value={candidateInfoData.employmentPeriod}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, employmentPeriod: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Monthly Salary"
+          value={candidateInfoData.salary}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, salary: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Reason for Resignation"
+          value={candidateInfoData.resignationReason}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, resignationReason: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Reporting Manager"
+          value={candidateInfoData.reportingManager}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, reportingManager: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="HR Manager"
+          value={candidateInfoData.hrManager}
+          onChange={(e) => setCandidateInfoData({ ...candidateInfoData, hrManager: e.target.value })}
+          className="border p-2 rounded w-full" />
+      </div>
+
+      {/* Submit */}
+      <div className="flex justify-end space-x-2">
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              const res = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  type: "Candidate Information Form - BGV",
+                  formData: candidateInfoData,
+                  submittedBy: candidateInfoData.candidateName,
+                }),
+              });
+              const data = await res.json();
+              if (data.success) {
+                alert("Candidate Info submitted successfully!");
+                setShowCandidateInfoForm(false);
+              } else {
+                alert("Error: " + (data.error || "unknown"));
+              }
+            } catch (err) {
+              console.error("❌ Frontend Error:", err);
+              alert("Submission failed");
+            }
+          }}
+          className="px-4 py-2 bg-green-600 text-white rounded"
+        >
+          Submit Form
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowCandidateInfoForm(false)}
+          className="px-4 py-2 border rounded"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </DialogContent>
+</Dialog>
+{/* Letter of Authorization - BGV */}
+<Dialog open={showAuthorizationForm} onOpenChange={setShowAuthorizationForm}>
+  <DialogContent className="max-w-2xl">
+    <DialogHeader>
+      <DialogTitle>Letter of Authorization</DialogTitle>
+      <DialogDescription>
+        Please read the declaration and fill in your details
+      </DialogDescription>
+    </DialogHeader>
+
+    <form className="space-y-6 p-4">
+      {/* Declaration Text */}
+      <div className="bg-gray-100 p-3 rounded text-sm text-gray-700">
+        <p>
+          I hereby authorize <b>M/s Securekloud Technologies Ltd</b> and its authorized
+          representatives to verify information provided in my resume and application
+          of employment, and to conduct enquiries as may be necessary, at the company's
+          discretion.
+        </p>
+        <p className="mt-2">
+          I authorize all persons who may have information relevant to this enquiry
+          to disclose it to <b>M/s Securekloud Technologies Ltd</b> or its representative.
+          I release all persons from liability on account of such disclosure.
+        </p>
+        <p className="mt-2">
+          I hereby authorize concerned authorities to dispatch my confidential reports
+          to <b>M/s Securekloud Technologies Ltd</b> or to its authorized representative.
+        </p>
+      </div>
+
+      {/* Inputs */}
+      <input
+        type="text"
+        placeholder="Name"
+        value={authorizationData.name}
+        onChange={(e) => setAuthorizationData({ ...authorizationData, name: e.target.value })}
+        className="border p-2 rounded w-full"
+      />
+
+      <input
+        type="date"
+        value={authorizationData.date}
+        onChange={(e) => setAuthorizationData({ ...authorizationData, date: e.target.value })}
+        className="border p-2 rounded w-full"
+      />
+
+      <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAuthorizationData({ ...authorizationData, signature: reader.result }); // base64
+      };
+      reader.readAsDataURL(file);
+    }
+  }}
+  className="border p-2 rounded w-full"
+/>
+
+
+      {/* Submit + Cancel */}
+      <div className="flex justify-end space-x-2">
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              const res = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  type: "Letter of Authorization - BGV",
+                  formData: authorizationData,
+                  submittedBy: authorizationData.name,
+                }),
+              });
+              const data = await res.json();
+              if (data.success) {
+                alert("Authorization form submitted successfully!");
+                setShowAuthorizationForm(false);
+              } else {
+                alert("Error: " + (data.error || "unknown"));
+              }
+            } catch (err) {
+              console.error("❌ Frontend Error:", err);
+              alert("Submission failed");
+            }
+          }}
+          className="px-4 py-2 bg-green-600 text-white rounded"
+        >
+          Submit Form
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowAuthorizationForm(false)}
+          className="px-4 py-2 border rounded"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </DialogContent>
+</Dialog>
+
+{/* ---------------- Associate Clearance Form Dialog ---------------- */}
+<Dialog open={showAssociateClearanceForm} onOpenChange={setShowAssociateClearanceForm}>
+  <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>ASSOCIATE CLEARANCE FORM</DialogTitle>
+      <DialogDescription>Read the sections below, fill in the fields and submit.</DialogDescription>
+    </DialogHeader>
+
+    <div className="p-4 space-y-4">
+      {/* Top details */}
+      <div className="grid grid-cols-2 gap-4">
+        <input type="text" placeholder="Associate Name" value={associateClearanceData.associateName}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, associateName: e.target.value })}
+          className="border p-2 rounded" />
+        <input type="text" placeholder="Associate I.D." value={associateClearanceData.associateId}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, associateId: e.target.value })}
+          className="border p-2 rounded" />
+
+        <input type="text" placeholder="Designation" value={associateClearanceData.designation}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, designation: e.target.value })}
+          className="border p-2 rounded" />
+        <input type="text" placeholder="Department" value={associateClearanceData.department}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, department: e.target.value })}
+          className="border p-2 rounded" />
+
+        <div>
+          <label className="block text-sm">Date of Joining</label>
+          <input type="date" value={associateClearanceData.dateOfJoining}
+            onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, dateOfJoining: e.target.value })}
+            className="border p-2 rounded w-full" />
+        </div>
+        <div>
+          <label className="block text-sm">Reporting To</label>
+          <input type="text" value={associateClearanceData.reportingTo}
+            onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, reportingTo: e.target.value })}
+            className="border p-2 rounded w-full" />
+        </div>
+
+        <div>
+          <label className="block text-sm">Date of Resignation</label>
+          <input type="date" value={associateClearanceData.dateOfResignation}
+            onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, dateOfResignation: e.target.value })}
+            className="border p-2 rounded w-full" />
+        </div>
+        <div>
+          <label className="block text-sm">Date of Relieving</label>
+          <input type="date" value={associateClearanceData.dateOfRelieving}
+            onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, dateOfRelieving: e.target.value })}
+            className="border p-2 rounded w-full" />
+        </div>
+      </div>
+
+      {/* Manager / Dept Head clearance */}
+      <section className="border p-3 rounded">
+        <h4 className="font-semibold">Clearance from Manager / Department Head</h4>
+
+        <div className="grid grid-cols-2 gap-4 mt-2">
+          {[
+            ["Documentation / Asset Handover", "docAssetStatus"],
+            ["Knowledge Transfer", "ktStatus"],
+            ["Client E-Mail Login", "clientEmailStatus"],
+            ["Client Web Service Access", "clientWebStatus"],
+            ["Other Tools and repository logins", "otherToolsStatus"],
+          ].map(([label, key]) => (
+            <div key={key}>
+              <label className="block text-sm font-medium">{label}</label>
+              <div className="flex items-center space-x-4 mt-2">
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name={key} checked={associateClearanceData[key] === "Returned"}
+                    onChange={() => setAssociateClearanceData(prev => ({ ...prev, [key]: "Returned" }))} />
+                  <span>Returned</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name={key} checked={associateClearanceData[key] === "Disabled"}
+                    onChange={() => setAssociateClearanceData(prev => ({ ...prev, [key]: "Disabled" }))} />
+                  <span>Disabled</span>
+                </label>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <input type="text" placeholder="Signature of K.T. receiver & Date"
+            value={associateClearanceData.ktReceiver}
+            onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, ktReceiver: e.target.value })}
+            className="border p-2 rounded" />
+          <input type="text" placeholder="Signature of Department Head & Date"
+            value={associateClearanceData.deptHeadSignature}
+            onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, deptHeadSignature: e.target.value })}
+            className="border p-2 rounded" />
+        </div>
+      </section>
+
+      {/* IT Admin clearance */}
+      <section className="border p-3 rounded">
+        <h4 className="font-semibold">Clearance from I.T. Admin Department</h4>
+
+        <div className="grid grid-cols-2 gap-4 mt-2">
+          {[
+            ["Login Credentials", "loginCredentials"],
+            ["Laptop / Desktop", "laptopStatus"],
+            ["Email Access deactivated", "emailAccess"],
+            ["AWS / MS Azure / Google Cloud Login", "cloudAccess"],
+            ["Biometric & Other Access deactivated", "biometricAccess"],
+            ["Active Directory Deactivation", "adDeactivation"],
+          ].map(([label, key]) => (
+            <div key={key}>
+              <label className="block text-sm font-medium">{label}</label>
+              <div className="flex items-center space-x-4 mt-2">
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name={key} checked={associateClearanceData[key] === "Returned"}
+                    onChange={() => setAssociateClearanceData(prev => ({ ...prev, [key]: "Returned" }))} />
+                  <span>Returned</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name={key} checked={associateClearanceData[key] === "Disabled"}
+                    onChange={() => setAssociateClearanceData(prev => ({ ...prev, [key]: "Disabled" }))} />
+                  <span>Disabled</span>
+                </label>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4">
+          <input type="text" placeholder="Signature & Date" value={associateClearanceData.itSignature}
+            onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, itSignature: e.target.value })}
+            className="border p-2 rounded w-full" />
+        </div>
+      </section>
+
+      {/* Accounts, Admin, HR */}
+      <section className="border p-3 rounded space-y-3">
+        <h4 className="font-semibold">Clearance from Accounts Department</h4>
+        <textarea placeholder="Loans / Advance / Reimbursement / Others - Remarks" value={associateClearanceData.loansRemarks}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, loansRemarks: e.target.value })}
+          className="border p-2 rounded w-full h-20" />
+        <textarea placeholder="Claims Submitted - Remarks" value={associateClearanceData.claimsRemarks}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, claimsRemarks: e.target.value })}
+          className="border p-2 rounded w-full h-20" />
+        <input type="text" placeholder="Signature & Date" value={associateClearanceData.accountsSignature}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, accountsSignature: e.target.value })}
+          className="border p-2 rounded w-full" />
+      </section>
+
+      <section className="border p-3 rounded space-y-3">
+        <h4 className="font-semibold">Clearance from Admin Department</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm">Mobile / SIM</label>
+            <div className="flex items-center space-x-4 mt-2">
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="mobileStatus" checked={associateClearanceData.mobileStatus === "Returned"}
+                  onChange={() => setAssociateClearanceData(prev => ({ ...prev, mobileStatus: "Returned" }))} />
+                <span>Returned</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="mobileStatus" checked={associateClearanceData.mobileStatus === "Disabled"}
+                  onChange={() => setAssociateClearanceData(prev => ({ ...prev, mobileStatus: "Disabled" }))} />
+                <span>Disabled</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm">Drawer Keys</label>
+            <div className="flex items-center space-x-4 mt-2">
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="keysStatus" checked={associateClearanceData.keysStatus === "Returned"}
+                  onChange={() => setAssociateClearanceData(prev => ({ ...prev, keysStatus: "Returned" }))} />
+                <span>Returned</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="keysStatus" checked={associateClearanceData.keysStatus === "Disabled"}
+                  onChange={() => setAssociateClearanceData(prev => ({ ...prev, keysStatus: "Disabled" }))} />
+                <span>Disabled</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <input type="text" placeholder="Signature & Date" value={associateClearanceData.adminSignature}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, adminSignature: e.target.value })}
+          className="border p-2 rounded w-full" />
+      </section>
+
+      <section className="border p-3 rounded space-y-3">
+        <h4 className="font-semibold">Clearance from H.R.</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm">Identity Card to be Returned</label>
+            <div className="flex items-center space-x-4 mt-2">
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="idCardStatus" checked={associateClearanceData.idCardStatus === "Returned"}
+                  onChange={() => setAssociateClearanceData(prev => ({ ...prev, idCardStatus: "Returned" }))} />
+                <span>Returned</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="idCardStatus" checked={associateClearanceData.idCardStatus === "Disabled"}
+                  onChange={() => setAssociateClearanceData(prev => ({ ...prev, idCardStatus: "Disabled" }))} />
+                <span>Disabled</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm">Time Sheet Login Disable</label>
+            <div className="flex items-center space-x-4 mt-2">
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="timesheetStatus" checked={associateClearanceData.timesheetStatus === "Returned"}
+                  onChange={() => setAssociateClearanceData(prev => ({ ...prev, timesheetStatus: "Returned" }))} />
+                <span>Returned</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="timesheetStatus" checked={associateClearanceData.timesheetStatus === "Disabled"}
+                  onChange={() => setAssociateClearanceData(prev => ({ ...prev, timesheetStatus: "Disabled" }))} />
+                <span>Disabled</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <textarea placeholder="Letter of Undertaking / other HR notes" value={associateClearanceData.louStatus}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, louStatus: e.target.value })}
+          className="border p-2 rounded w-full h-20" />
+        <input type="text" placeholder="Medical Insurance Deletion Intimation" value={associateClearanceData.insuranceStatus}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, insuranceStatus: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Documents submitted as per Tax Declaration in ADP portal" value={associateClearanceData.taxDocsStatus}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, taxDocsStatus: e.target.value })}
+          className="border p-2 rounded w-full" />
+
+        <input type="text" placeholder="Signature & Date" value={associateClearanceData.hrSignature}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, hrSignature: e.target.value })}
+          className="border p-2 rounded w-full" />
+      </section>
+
+      {/* Declaration by the associate */}
+      <section className="border p-3 rounded space-y-3">
+        <h4 className="font-semibold">Declaration by the Associate</h4>
+        <textarea className="border p-2 rounded w-full h-28" value={associateClearanceData.declaration}
+          onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, declaration: e.target.value })} />
+
+        <div className="grid grid-cols-2 gap-4">
+          <input type="text" placeholder="Associate Signature & Date" value={associateClearanceData.associateSignature}
+            onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, associateSignature: e.target.value })}
+            className="border p-2 rounded w-full" />
+          <input type="text" placeholder="Associate Address & Phone No" value={associateClearanceData.associateAddress}
+            onChange={(e) => setAssociateClearanceData({ ...associateClearanceData, associateAddress: e.target.value })}
+            className="border p-2 rounded w-full" />
+        </div>
+      </section>
+
+      {/* Signature upload */}
+      <div>
+        <label className="block font-medium">Upload Signature (image)</label>
+        <input type="file" accept="image/*" onChange={(e) => {
+          const f = e.target.files && e.target.files[0];
+          handleSignatureFile(f || null, "associateSignature");
+        }} />
+        <p className="text-sm text-gray-500 mt-1">Optional. If uploaded, signature will be embedded into PDF.</p>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end space-x-2 mt-4">
+        <button type="button" className="px-4 py-2 border rounded" onClick={() => setShowAssociateClearanceForm(false)}>Cancel</button>
+        <button type="button" className="px-4 py-2 bg-green-600 text-white rounded"
+          onClick={async () => {
+            try {
+              const res = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  type: "Associate Clearance Form",
+                  formData: associateClearanceData,
+                  submittedBy: associateClearanceData.associateName || "N/A",
+                }),
+              });
+              const data = await res.json();
+              if (data.success) {
+                alert("Associate Clearance Form submitted successfully!");
+                setShowAssociateClearanceForm(false);
+              } else {
+                alert("Error: " + (data.error || "unknown"));
+              }
+            } catch (err) {
+              console.error("Submit Error:", err);
+              alert("Submission failed");
+            }
+          }}
+        >
+          Submit Form
+        </button>
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>
+{/* ---------------- end Associate Clearance Form Dialog ---------------- */}
+
+{/* ---------------- Exit Interview Template Form ---------------- */}
+<Dialog open={showExitInterviewForm} onOpenChange={setShowExitInterviewForm}>
+  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Exit Interview Template</DialogTitle>
+      <DialogDescription>
+        Please fill out this survey before your last working day
+      </DialogDescription>
+    </DialogHeader>
+
+    <form
+      onSubmit={handleSubmitExitInterview}
+      className="space-y-4 p-4 text-sm"
+    >
+      <div className="grid grid-cols-2 gap-4">
+        <input type="text" placeholder="Associate Name" name="associateName" className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Associate ID" name="associateId" className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Designation" name="designation" className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Band / Level" name="bandLevel" className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Department" name="department" className="border p-2 rounded w-full" />
+        <input type="text" placeholder="Department Head" name="departmentHead" className="border p-2 rounded w-full" />
+        <input type="date" placeholder="Date of Joining" name="joiningDate" className="border p-2 rounded w-full" />
+        <input type="date" placeholder="Exit Survey Date" name="exitSurveyDate" className="border p-2 rounded w-full" />
+      </div>
+
+      <h3 className="font-semibold mt-4">Reasons for Joining SecureKloud</h3>
+      <div className="grid grid-cols-2 gap-2">
+        {["Career growth", "Compensation", "Company reputation", "Work culture", "Location"].map((reason) => (
+          <label key={reason} className="flex items-center space-x-2">
+            <input type="checkbox" name="reasonsForJoining" value={reason} />
+            <span>{reason}</span>
+          </label>
+        ))}
+      </div>
+
+      <h3 className="font-semibold mt-4">Reasons for Leaving SecureKloud</h3>
+      <div className="grid grid-cols-2 gap-2">
+        {["Better opportunity", "Work environment", "Compensation", "Relocation", "Personal reasons"].map((reason) => (
+          <label key={reason} className="flex items-center space-x-2">
+            <input type="checkbox" name="reasonsForQuitting" value={reason} />
+            <span>{reason}</span>
+          </label>
+        ))}
+      </div>
+
+      <div>
+        <h3 className="font-semibold mt-4">HR Remarks</h3>
+        <textarea name="hrRemarks" className="border p-2 rounded w-full" rows={4} />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <input type="text" placeholder="HR Name" name="hrName" className="border p-2 rounded w-full" />
+        <input type="date" placeholder="Date" name="date" className="border p-2 rounded w-full" />
+      </div>
+
+      <div className="flex justify-end space-x-2">
+        <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">
+          Submit Form
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowExitInterviewForm(false)}
+          className="px-4 py-2 border rounded"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </DialogContent>
+</Dialog>
+{/* ---------------- Gratuity Declaration Form Dialog ---------------- */}
+<Dialog open={showGratuityForm} onOpenChange={setShowGratuityForm}>
+  <DialogTrigger asChild>
+    {/* Add a button somewhere in the UI to open the form — if you already have a menu item, use that */}
+   
+  </DialogTrigger>
+
+  <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+  <DialogHeader>
+    <DialogTitle className="text-center font-bold text-xl">
+      GRATUITY DECLARATION FORM
+    </DialogTitle>
+    <DialogDescription className="text-center text-gray-600">
+      (As per Payment of Gratuity Act, 1972)
+    </DialogDescription>
+  </DialogHeader>
+
+  <form className="space-y-6 p-4">
+    <div className="text-sm text-gray-700 leading-relaxed space-y-3">
+      <p>
+        I, <b>{gratuityData.employeeName || "__________"}</b> (Employee ID:{" "}
+        <b>{gratuityData.employeeId || "__________"}</b>), hereby declare that
+        I have been informed about the provisions of the Payment of Gratuity Act, 1972.
+      </p>
+      <p>
+        I understand that the gratuity payable to me on separation from the
+        organization will be as per the terms and eligibility prescribed under
+        the said Act.
+      </p>
+      <p>
+        I hereby confirm my declaration under the following option:
+      </p>
+    </div>
+
+    <div className="space-y-2">
+      <label className="font-semibold">Declaration Option</label>
+      <div className="flex space-x-4">
+        <label className="flex items-center space-x-2">
+          <input
+            type="radio"
+            value="A"
+            checked={gratuityData.declarationOption === "A"}
+            onChange={(e) =>
+              setGratuityData({ ...gratuityData, declarationOption: e.target.value })
+            }
+          />
+          <span>
+            A. I wish to claim gratuity as per the Payment of Gratuity Act, 1972.
+          </span>
+        </label>
+      </div>
+      <div className="flex space-x-4">
+        <label className="flex items-center space-x-2">
+          <input
+            type="radio"
+            value="B"
+            checked={gratuityData.declarationOption === "B"}
+            onChange={(e) =>
+              setGratuityData({ ...gratuityData, declarationOption: e.target.value })
+            }
+          />
+          <span>
+            B. I do not wish to claim gratuity benefits under the Act.
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-4">
+      <input
+        type="text"
+        placeholder="Employee Name"
+        value={gratuityData.employeeName}
+        onChange={(e) => setGratuityData({ ...gratuityData, employeeName: e.target.value })}
+        className="border p-2 rounded w-full"
+      />
+      <input
+        type="text"
+        placeholder="Employee ID"
+        value={gratuityData.employeeId}
+        onChange={(e) => setGratuityData({ ...gratuityData, employeeId: e.target.value })}
+        className="border p-2 rounded w-full"
+      />
+      <input
+        type="text"
+        placeholder="Address"
+        value={gratuityData.address}
+        onChange={(e) => setGratuityData({ ...gratuityData, address: e.target.value })}
+        className="border p-2 rounded w-full col-span-2"
+      />
+      <input
+        type="text"
+        placeholder="Place"
+        value={gratuityData.place}
+        onChange={(e) => setGratuityData({ ...gratuityData, place: e.target.value })}
+        className="border p-2 rounded w-full"
+      />
+      <input
+        type="date"
+        placeholder="Date"
+        value={gratuityData.date}
+        onChange={(e) => setGratuityData({ ...gratuityData, date: e.target.value })}
+        className="border p-2 rounded w-full"
+      />
+    </div>
+
+    <div className="space-y-2">
+      <label className="font-semibold">Upload Signature</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              setGratuityData({ ...gratuityData, signature: reader.result as string });
+            reader.readAsDataURL(file);
+          }
+        }}
+        className="border p-2 rounded w-full"
+      />
+      {gratuityData.signature && (
+        <img
+          src={gratuityData.signature}
+          alt="Signature Preview"
+          className="w-32 h-16 border rounded mt-2"
+        />
+      )}
+    </div>
+
+    <div className="flex justify-end space-x-2">
+      <button
+        type="button"
+        onClick={() => setShowGratuityForm(false)}
+        className="px-4 py-2 border rounded"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const res = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                type: "Gratuity Declaration Form",
+                formData: gratuityData,
+                submittedBy: gratuityData.employeeName,
+              }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              alert("Form submitted successfully!");
+              setShowGratuityForm(false);
+            } else {
+              alert("Error: " + (data.error || "unknown"));
+            }
+          } catch (err) {
+            console.error("❌ Frontend Error:", err);
+            alert("Submission failed");
+          }
+        }}
+        className="px-4 py-2 bg-green-600 text-white rounded"
+      >
+        Submit
+      </button>
+    </div>
+  </form>
+</DialogContent>
+
+</Dialog>
+{/* ---------------- end Gratuity Dialog ---------------- */}
+
+
+<Dialog open={showUndertakingForm} onOpenChange={setShowUndertakingForm}>
+  <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Letter of Undertaking & Confirmation</DialogTitle>
+    </DialogHeader>
+
+    {/* Date */}
+    <input
+      type="date"
+      value={undertakingData.date}
+      onChange={(e) =>
+        setUndertakingData({ ...undertakingData, date: e.target.value })
+      }
+      className="border p-2 rounded w-full mb-4"
+    />
+
+    {/* Company Address */}
+    <p className="text-sm mb-4">
+      Secure Kloud Technologies Limited<br />
+      5th floor, Bascon Futura Sv It Park,<br />
+      SV 10/1, Venkatnarayana Road,<br />
+      T-Nagar, Chennai – 600 017.
+    </p>
+
+    <p className="font-semibold mb-4">
+      Sub: Letter of Undertaking & Confirmation
+    </p>
+
+    {/* Associate Introduction */}
+    <p>I,</p>
+    <input
+      type="text"
+      placeholder="Associate Name"
+      value={undertakingData.associateName}
+      onChange={(e) =>
+        setUndertakingData({
+          ...undertakingData,
+          associateName: e.target.value,
+        })
+      }
+      className="border p-2 rounded w-full mb-2"
+    />
+
+    <p>son/daughter/wife of</p>
+    <input
+      type="text"
+      placeholder="Relative Name"
+      value={undertakingData.relativeName}
+      onChange={(e) =>
+        setUndertakingData({
+          ...undertakingData,
+          relativeName: e.target.value,
+        })
+      }
+      className="border p-2 rounded w-full mb-2"
+    />
+
+    <p>residing at</p>
+    <textarea
+      placeholder="Address"
+      value={undertakingData.address}
+      onChange={(e) =>
+        setUndertakingData({
+          ...undertakingData,
+          address: e.target.value,
+        })
+      }
+      className="border p-2 rounded w-full mb-2"
+    />
+
+    <p>employed with Secure Kloud Technologies Limited …</p>
+
+    {/* Clause 1 */}
+    <p className="mt-4">1. I was employed as</p>
+    <input
+      type="text"
+      placeholder="Designation"
+      value={undertakingData.designation}
+      onChange={(e) =>
+        setUndertakingData({
+          ...undertakingData,
+          designation: e.target.value,
+        })
+      }
+      className="border p-2 rounded w-full mb-2"
+    />
+    <p>with the Company since</p>
+    <input
+      type="date"
+      value={undertakingData.joiningDate}
+      onChange={(e) =>
+        setUndertakingData({
+          ...undertakingData,
+          joiningDate: e.target.value,
+        })
+      }
+      className="border p-2 rounded w-full mb-2"
+    />
+
+    {/* Clause 2 */}
+    <p className="mt-4">
+      2. I have voluntarily resigned … vide my email dated
+    </p>
+    <input
+      type="date"
+      value={undertakingData.resignationDate}
+      onChange={(e) =>
+        setUndertakingData({
+          ...undertakingData,
+          resignationDate: e.target.value,
+        })
+      }
+      className="border p-2 rounded w-full mb-2"
+    />
+
+    {/* Clause 3–6, 8–11 (static text) */}
+    <p className="mt-4 text-sm">
+      3. I understand and confirm … (insert full clause text from PDF here)
+    </p>
+    <p className="mt-2 text-sm">
+      4. (Full clause 4 text from PDF)
+    </p>
+    <p className="mt-2 text-sm">
+      5. (Full clause 5 text from PDF)
+    </p>
+    <p className="mt-2 text-sm">
+      6. (Full clause 6 text from PDF)
+    </p>
+    {/* Clause 7 with checkbox */}
+    <div className="mt-4">
+      <label>
+        <input
+          type="checkbox"
+          checked={undertakingData.isDirector}
+          onChange={(e) =>
+            setUndertakingData({
+              ...undertakingData,
+              isDirector: e.target.checked,
+            })
+          }
+        />{" "}
+        Applicable for Director and above (include Clause 7)
+      </label>
+    </div>
+    <p className="mt-2 text-sm">
+      8. (Full clause 8 text from PDF)
+    </p>
+    <p className="mt-2 text-sm">
+      9. (Full clause 9 text from PDF)
+    </p>
+    <p className="mt-2 text-sm">
+      10. (Full clause 10 text from PDF)
+    </p>
+    <p className="mt-2 text-sm">
+      11. (Full clause 11 text from PDF)
+    </p>
+
+    {/* Footer */}
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      <input
+        type="text"
+        placeholder="Place"
+        value={undertakingData.place}
+        onChange={(e) =>
+          setUndertakingData({
+            ...undertakingData,
+            place: e.target.value,
+          })
+        }
+        className="border p-2 rounded"
+      />
+      <input
+        type="text"
+        placeholder="Name of Associate"
+        value={undertakingData.associateName}
+        onChange={(e) =>
+          setUndertakingData({
+            ...undertakingData,
+            associateName: e.target.value,
+          })
+        }
+        className="border p-2 rounded"
+      />
+    </div>
+
+    <div className="mt-4">
+      <label className="block mb-2">Signature of Associate</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) =>
+          setUndertakingData({
+            ...undertakingData,
+            signature: e.target.files?.[0]?.name || "",
+          })
+        }
+        className="border p-2 rounded w-full"
+      />
+    </div>
+
+    {/* Submit + Cancel */}
+    <div className="flex justify-end space-x-2 mt-4">
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const res = await fetch(
+              "http://localhost:8000/api/nomination/submitNomination",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  type: "Letter of Undertaking Separation",
+                  formData: undertakingData,
+                  submittedBy: undertakingData.associateName,
+                }),
+              }
+            );
+            const data = await res.json();
+            if (data.success) {
+              alert("Letter of Undertaking submitted successfully!");
+              setShowUndertakingForm(false);
+            } else {
+              alert("Error: " + (data.error || "unknown"));
+            }
+          } catch (err) {
+            console.error("❌ Undertaking Submit Error:", err);
+            alert("Submission failed");
+          }
+        }}
+        className="px-4 py-2 bg-green-600 text-white rounded"
+      >
+        Submit
+      </button>
+      <button
+        type="button"
+        onClick={() => setShowUndertakingForm(false)}
+        className="px-4 py-2 border rounded"
+      >
+        Cancel
+      </button>
+    </div>
+  </DialogContent>
+</Dialog>
+<Dialog open={showInvoiceForm} onOpenChange={setShowInvoiceForm}>
+  <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Contract Invoice Template</DialogTitle>
+    </DialogHeader>
+
+    {/* Invoice Details */}
+    <div className="grid grid-cols-2 gap-4">
+      <input
+        type="text"
+        placeholder="Invoice Number"
+        value={invoiceData.invoiceNumber}
+        onChange={(e) =>
+          setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })
+        }
+        className="border p-2 rounded"
+      />
+      <input
+        type="date"
+        value={invoiceData.invoiceDate}
+        onChange={(e) =>
+          setInvoiceData({ ...invoiceData, invoiceDate: e.target.value })
+        }
+        className="border p-2 rounded"
+      />
+    </div>
+
+    {/* Consultant Details */}
+    <input
+      type="text"
+      placeholder="Consultant Name"
+      value={invoiceData.consultantName}
+      onChange={(e) =>
+        setInvoiceData({ ...invoiceData, consultantName: e.target.value })
+      }
+      className="border p-2 rounded w-full mt-2"
+    />
+    <textarea
+      placeholder="Consultant Address"
+      value={invoiceData.consultantAddress}
+      onChange={(e) =>
+        setInvoiceData({ ...invoiceData, consultantAddress: e.target.value })
+      }
+      className="border p-2 rounded w-full mt-2"
+    />
+    <input
+      type="text"
+      placeholder="Mobile Number"
+      value={invoiceData.consultantMobile}
+      onChange={(e) =>
+        setInvoiceData({ ...invoiceData, consultantMobile: e.target.value })
+      }
+      className="border p-2 rounded w-full mt-2"
+    />
+
+    {/* Bill To (static) */}
+    <p className="font-semibold mt-4">Bill To:</p>
+    <p className="text-sm">
+      SecureKloud Technologies Limited<br />
+      5th Floor, No. 37 & 38, ASV Ramana Towers,<br />
+      Venkat Narayana Road, T Nagar, Chennai – 600017.
+    </p>
+
+    {/* Services */}
+    <div className="mt-4">
+      <p className="font-semibold mb-2">Services</p>
+      {invoiceData.services.map((service, index) => (
+        <div key={index} className="grid grid-cols-4 gap-2 mb-2">
+          <input
+            type="text"
+            placeholder="Description"
+            value={service.description}
+            onChange={(e) => {
+              const services = [...invoiceData.services];
+              services[index].description = e.target.value;
+              setInvoiceData({ ...invoiceData, services });
+            }}
+            className="border p-2 rounded"
+          />
+          <input
+            type="number"
+            placeholder="Hours"
+            value={service.hours}
+            onChange={(e) => {
+              const services = [...invoiceData.services];
+              services[index].hours = Number(e.target.value);
+              services[index].amount =
+                services[index].hours * services[index].rate;
+              setInvoiceData({ ...invoiceData, services });
+            }}
+            className="border p-2 rounded"
+          />
+          <input
+            type="number"
+            placeholder="Rate"
+            value={service.rate}
+            onChange={(e) => {
+              const services = [...invoiceData.services];
+              services[index].rate = Number(e.target.value);
+              services[index].amount =
+                services[index].hours * services[index].rate;
+              setInvoiceData({ ...invoiceData, services });
+            }}
+            className="border p-2 rounded"
+          />
+          <input
+            type="number"
+            placeholder="Amount"
+            value={service.amount}
+            readOnly
+            className="border p-2 rounded bg-gray-100"
+          />
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() =>
+          setInvoiceData({
+            ...invoiceData,
+            services: [
+              ...invoiceData.services,
+              { description: "", hours: 0, rate: 0, amount: 0 },
+            ],
+          })
+        }
+        className="px-2 py-1 bg-blue-600 text-white rounded"
+      >
+        + Add Row
+      </button>
+    </div>
+
+    {/* Total */}
+    <p className="mt-4 font-semibold">
+      Total Amount: ₹
+      {invoiceData.services.reduce((sum, s) => sum + s.amount, 0)}
+    </p>
+
+    {/* Bank Details */}
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      <input
+        type="text"
+        placeholder="Bank Name"
+        value={invoiceData.bankName}
+        onChange={(e) =>
+          setInvoiceData({ ...invoiceData, bankName: e.target.value })
+        }
+        className="border p-2 rounded"
+      />
+      <input
+        type="text"
+        placeholder="Bank Branch"
+        value={invoiceData.bankBranch}
+        onChange={(e) =>
+          setInvoiceData({ ...invoiceData, bankBranch: e.target.value })
+        }
+        className="border p-2 rounded"
+      />
+      <input
+        type="text"
+        placeholder="IFSC Code"
+        value={invoiceData.ifscCode}
+        onChange={(e) =>
+          setInvoiceData({ ...invoiceData, ifscCode: e.target.value })
+        }
+        className="border p-2 rounded"
+      />
+      <input
+        type="text"
+        placeholder="Account Number"
+        value={invoiceData.accountNumber}
+        onChange={(e) =>
+          setInvoiceData({ ...invoiceData, accountNumber: e.target.value })
+        }
+        className="border p-2 rounded"
+      />
+      <input
+        type="text"
+        placeholder="PAN Number"
+        value={invoiceData.panNumber}
+        onChange={(e) =>
+          setInvoiceData({ ...invoiceData, panNumber: e.target.value })
+        }
+        className="border p-2 rounded"
+      />
+    </div>
+
+    {/* Signature */}
+    <div className="mt-4">
+      <label className="block mb-2">Signature</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) =>
+          setInvoiceData({
+            ...invoiceData,
+            signature: e.target.files?.[0]?.name || "",
+          })
+        }
+        className="border p-2 rounded w-full"
+      />
+    </div>
+
+    <p className="mt-2 text-sm italic">
+      Note: I am below the GST threshold of 20 Lakhs per annum.
+    </p>
+
+    {/* Submit + Cancel */}
+    <div className="flex justify-end space-x-2 mt-4">
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const res = await fetch(
+              "http://localhost:8000/api/nomination/submitNomination",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  type: "Contract Invoice Template",
+                  formData: invoiceData,
+                  submittedBy: invoiceData.consultantName,
+                }),
+              }
+            );
+            const data = await res.json();
+            if (data.success) {
+              alert("Invoice submitted successfully!");
+              setShowInvoiceForm(false);
+            } else {
+              alert("Error: " + (data.error || "unknown"));
+            }
+          } catch (err) {
+            console.error("❌ Invoice Submit Error:", err);
+            alert("Submission failed");
+          }
+        }}
+        className="px-4 py-2 bg-green-600 text-white rounded"
+      >
+        Submit
+      </button>
+      <button
+        type="button"
+        onClick={() => setShowInvoiceForm(false)}
+        className="px-4 py-2 border rounded"
+      >
+        Cancel
+      </button>
+    </div>
+  </DialogContent>
+</Dialog>
+<Dialog open={showTimesheetForm} onOpenChange={setShowTimesheetForm}>
+  <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Contract Timesheet Template</DialogTitle>
+    </DialogHeader>
+
+    {/* Consultant Name */}
+    <input
+      type="text"
+      placeholder="Consultant Name"
+      value={timesheetData.consultantName}
+      onChange={(e) =>
+        setTimesheetData({ ...timesheetData, consultantName: e.target.value })
+      }
+      className="border p-2 rounded w-full mb-4"
+    />
+
+    {/* Timesheet Table */}
+    <div>
+      <p className="font-semibold mb-2">Timesheet Entries</p>
+      {timesheetData.entries.map((entry, index) => (
+        <div key={index} className="grid grid-cols-3 gap-2 mb-2">
+          <input
+            type="date"
+            value={entry.date}
+            onChange={(e) => {
+              const entries = [...timesheetData.entries];
+              entries[index].date = e.target.value;
+              setTimesheetData({ ...timesheetData, entries });
+            }}
+            className="border p-2 rounded"
+          />
+          <input
+            type="text"
+            placeholder="Module"
+            value={entry.module}
+            onChange={(e) => {
+              const entries = [...timesheetData.entries];
+              entries[index].module = e.target.value;
+              setTimesheetData({ ...timesheetData, entries });
+            }}
+            className="border p-2 rounded"
+          />
+          <input
+            type="number"
+            placeholder="Hours Worked"
+            value={entry.hours}
+            onChange={(e) => {
+              const entries = [...timesheetData.entries];
+              entries[index].hours = Number(e.target.value);
+              setTimesheetData({ ...timesheetData, entries });
+            }}
+            className="border p-2 rounded"
+          />
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() =>
+          setTimesheetData({
+            ...timesheetData,
+            entries: [
+              ...timesheetData.entries,
+              { date: "", module: "", hours: 0 },
+            ],
+          })
+        }
+        className="px-2 py-1 bg-blue-600 text-white rounded"
+      >
+        + Add Row
+      </button>
+    </div>
+
+    {/* Total Hours */}
+    <p className="mt-4 font-semibold">
+      Total Hours:{" "}
+      {timesheetData.entries.reduce((sum, e) => sum + e.hours, 0)}
+    </p>
+
+    {/* Description */}
+    <textarea
+      placeholder="Description of modules and activity"
+      value={timesheetData.description}
+      onChange={(e) =>
+        setTimesheetData({ ...timesheetData, description: e.target.value })
+      }
+      className="border p-2 rounded w-full mt-4"
+    />
+
+    {/* Submit + Cancel */}
+    <div className="flex justify-end space-x-2 mt-4">
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const res = await fetch(
+              "http://localhost:8000/api/nomination/submitNomination",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  type: "Contract Timesheet Template",
+                  formData: timesheetData,
+                  submittedBy: timesheetData.consultantName,
+                }),
+              }
+            );
+            const data = await res.json();
+            if (data.success) {
+              alert("Timesheet submitted successfully!");
+              setShowTimesheetForm(false);
+            } else {
+              alert("Error: " + (data.error || "unknown"));
+            }
+          } catch (err) {
+            console.error("❌ Timesheet Submit Error:", err);
+            alert("Submission failed");
+          }
+        }}
+        className="px-4 py-2 bg-green-600 text-white rounded"
+      >
+        Submit
+      </button>
+      <button
+        type="button"
+        onClick={() => setShowTimesheetForm(false)}
+        className="px-4 py-2 border rounded"
+      >
+        Cancel
+      </button>
+    </div>
+  </DialogContent>
+</Dialog>
+<Dialog open={showExpenseForm} onOpenChange={setShowExpenseForm}>
+  <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Expense Reimbursement Form</DialogTitle>
+    </DialogHeader>
+
+    {/* Employee Info */}
+    <div className="grid grid-cols-2 gap-4 mb-4">
+      <input
+        type="text"
+        placeholder="Employee Name"
+        value={expenseData.employeeName}
+        onChange={(e) => setExpenseData({ ...expenseData, employeeName: e.target.value })}
+        className="border p-2 rounded"
+      />
+      <input
+        type="text"
+        placeholder="EMP ID"
+        value={expenseData.empId}
+        onChange={(e) => setExpenseData({ ...expenseData, empId: e.target.value })}
+        className="border p-2 rounded"
+      />
+      <input
+        type="text"
+        placeholder="Manager Name"
+        value={expenseData.managerName}
+        onChange={(e) => setExpenseData({ ...expenseData, managerName: e.target.value })}
+        className="border p-2 rounded"
+      />
+      <input
+        type="text"
+        placeholder="Department"
+        value={expenseData.department}
+        onChange={(e) => setExpenseData({ ...expenseData, department: e.target.value })}
+        className="border p-2 rounded"
+      />
+      <input
+        type="date"
+        value={expenseData.fromDate}
+        onChange={(e) => setExpenseData({ ...expenseData, fromDate: e.target.value })}
+        className="border p-2 rounded"
+      />
+      <input
+        type="date"
+        value={expenseData.toDate}
+        onChange={(e) => setExpenseData({ ...expenseData, toDate: e.target.value })}
+        className="border p-2 rounded"
+      />
+    </div>
+
+    <input
+      type="text"
+      placeholder="Business Purpose / Project"
+      value={expenseData.businessPurpose}
+      onChange={(e) => setExpenseData({ ...expenseData, businessPurpose: e.target.value })}
+      className="border p-2 rounded w-full mb-4"
+    />
+
+    {/* Expenses Table */}
+    <div>
+      <p className="font-semibold mb-2">Itemized Expenses</p>
+      {expenseData.expenses.map((exp, index) => (
+        <div key={index} className="grid grid-cols-4 gap-2 mb-2">
+          <input
+            type="date"
+            value={exp.date}
+            onChange={(e) => {
+              const expenses = [...expenseData.expenses];
+              expenses[index].date = e.target.value;
+              setExpenseData({ ...expenseData, expenses });
+            }}
+            className="border p-2 rounded"
+          />
+          <input
+            type="text"
+            placeholder="Description"
+            value={exp.description}
+            onChange={(e) => {
+              const expenses = [...expenseData.expenses];
+              expenses[index].description = e.target.value;
+              setExpenseData({ ...expenseData, expenses });
+            }}
+            className="border p-2 rounded"
+          />
+          <input
+            type="text"
+            placeholder="Category"
+            value={exp.category}
+            onChange={(e) => {
+              const expenses = [...expenseData.expenses];
+              expenses[index].category = e.target.value;
+              setExpenseData({ ...expenseData, expenses });
+            }}
+            className="border p-2 rounded"
+          />
+          <input
+            type="number"
+            placeholder="Cost"
+            value={exp.cost}
+            onChange={(e) => {
+              const expenses = [...expenseData.expenses];
+              expenses[index].cost = Number(e.target.value);
+              setExpenseData({ ...expenseData, expenses });
+            }}
+            className="border p-2 rounded"
+          />
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() =>
+          setExpenseData({
+            ...expenseData,
+            expenses: [...expenseData.expenses, { date: "", description: "", category: "", cost: 0 }],
+          })
+        }
+        className="px-2 py-1 bg-blue-600 text-white rounded"
+      >
+        + Add Row
+      </button>
+    </div>
+
+    {/* Totals */}
+    <p className="mt-4">Subtotal: ₹{expenseData.expenses.reduce((sum, e) => sum + e.cost, 0)}</p>
+    <input
+      type="number"
+      placeholder="Less Cash Advance"
+      value={expenseData.cashAdvance}
+      onChange={(e) => setExpenseData({ ...expenseData, cashAdvance: Number(e.target.value) })}
+      className="border p-2 rounded mt-2"
+    />
+    <p className="mt-2 font-semibold">
+      Total: ₹{expenseData.expenses.reduce((sum, e) => sum + e.cost, 0) - expenseData.cashAdvance}
+    </p>
+
+    {/* Receipts */}
+    <div className="mt-4">
+      <label className="block mb-2">Attach Receipts</label>
+      <input
+        type="file"
+        multiple
+        onChange={(e) =>
+          setExpenseData({ ...expenseData, receipts: Array.from(e.target.files || []) })
+        }
+        className="border p-2 rounded w-full"
+      />
+    </div>
+
+    {/* Signatures */}
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      <div>
+        <label className="block mb-2">Employee Signature</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) =>
+            setExpenseData({ ...expenseData, employeeSignature: e.target.files?.[0]?.name || "" })
+          }
+          className="border p-2 rounded w-full"
+        />
+        <input
+          type="date"
+          value={expenseData.employeeDate}
+          onChange={(e) => setExpenseData({ ...expenseData, employeeDate: e.target.value })}
+          className="border p-2 rounded mt-2 w-full"
+        />
+      </div>
+      <div>
+        <label className="block mb-2">Approval Signature</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) =>
+            setExpenseData({ ...expenseData, approvalSignature: e.target.files?.[0]?.name || "" })
+          }
+          className="border p-2 rounded w-full"
+        />
+        <input
+          type="date"
+          value={expenseData.approvalDate}
+          onChange={(e) => setExpenseData({ ...expenseData, approvalDate: e.target.value })}
+          className="border p-2 rounded mt-2 w-full"
+        />
+      </div>
+    </div>
+
+    {/* Submit + Cancel */}
+    <div className="flex justify-end space-x-2 mt-4">
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const res = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                type: "Expense Reimbursement Form",
+                formData: expenseData,
+                submittedBy: expenseData.employeeName,
+              }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              alert("Expense Reimbursement submitted successfully!");
+              setShowExpenseForm(false);
+            } else {
+              alert("Error: " + (data.error || "unknown"));
+            }
+          } catch (err) {
+            console.error("❌ Expense Submit Error:", err);
+            alert("Submission failed");
+          }
+        }}
+        className="px-4 py-2 bg-green-600 text-white rounded"
+      >
+        Submit
+      </button>
+      <button
+        type="button"
+        onClick={() => setShowExpenseForm(false)}
+        className="px-4 py-2 border rounded"
+      >
+        Cancel
+      </button>
+    </div>
+  </DialogContent>
+</Dialog>
+<Dialog open={showInductionForm} onOpenChange={setShowInductionForm}>
+  <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Induction Feedback Form</DialogTitle>
+    </DialogHeader>
+
+    {/* Associate Details */}
+    <div className="grid grid-cols-2 gap-4">
+      <input type="text" placeholder="Associate Name"
+        value={inductionData.associateName}
+        onChange={(e) => setInductionData({ ...inductionData, associateName: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Employee Number"
+        value={inductionData.employeeNumber}
+        onChange={(e) => setInductionData({ ...inductionData, employeeNumber: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Designation"
+        value={inductionData.designation}
+        onChange={(e) => setInductionData({ ...inductionData, designation: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Department"
+        value={inductionData.department}
+        onChange={(e) => setInductionData({ ...inductionData, department: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Trainer(s)"
+        value={inductionData.trainers}
+        onChange={(e) => setInductionData({ ...inductionData, trainers: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="date"
+        value={inductionData.trainingDate}
+        onChange={(e) => setInductionData({ ...inductionData, trainingDate: e.target.value })}
+        className="border p-2 rounded" />
+    </div>
+
+    {/* Tick where appropriate */}
+    <div className="mt-6">
+      <p className="font-semibold mb-2">Please tick where appropriate</p>
+      {[
+        "Onboarding in Person / Virtual was smooth",
+        "Induction programme duration was adequate",
+        "Induction programme was well managed",
+        "I have been well informed of the organization Policies",
+        "Information provided helped me understand the business better",
+        "Introduced to Manager / Supervisor within 3 days"
+      ].map((q, idx) => (
+        <div key={idx} className="mb-2">
+          <p>{q}</p>
+          {["Agree", "Somewhat Agree", "Disagree"].map((opt) => (
+            <label key={opt} className="ml-2">
+              <input type="radio" name={`q${idx}`} value={opt}
+                checked={inductionData.responses[idx] === opt}
+                onChange={() => {
+                  const responses = [...inductionData.responses];
+                  responses[idx] = opt;
+                  setInductionData({ ...inductionData, responses });
+                }} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      ))}
+    </div>
+
+    {/* Ratings Table */}
+    <div className="mt-6">
+      <p className="font-semibold mb-2">Rate the following (1-4)</p>
+      {["Coverage Duration Speaker", "Business Orientation", "H.R. Orientation", "Finance Orientation", "Marketing Orientation", "I.T Admin Orientation"].map((param, idx) => (
+        <div key={idx} className="mb-2">
+          <p>{param}</p>
+          {[1, 2, 3, 4].map((val) => (
+            <label key={val} className="ml-2">
+              <input type="radio" name={`rating${idx}`} value={val}
+                checked={inductionData.ratings[idx] === val}
+                onChange={() => {
+                  const ratings = [...inductionData.ratings];
+                  ratings[idx] = val;
+                  setInductionData({ ...inductionData, ratings });
+                }} />
+              {val}
+            </label>
+          ))}
+        </div>
+      ))}
+    </div>
+
+    {/* Suggestions */}
+    <textarea
+      placeholder="Do you have any suggestions on improving these sessions?"
+      value={inductionData.suggestions}
+      onChange={(e) => setInductionData({ ...inductionData, suggestions: e.target.value })}
+      className="border p-2 rounded w-full mt-4"
+    />
+
+    {/* Overall Rating */}
+    <div className="mt-6">
+      <p className="font-semibold mb-2">Overall, how would you rate the induction programme?</p>
+      {["Exceeds Expectation", "Meets Expectation", "Needs Improvement", "Unsatisfactory"].map((opt) => (
+        <label key={opt} className="block">
+          <input type="radio" name="overall" value={opt}
+            checked={inductionData.overall === opt}
+            onChange={() => setInductionData({ ...inductionData, overall: opt })} />
+          {opt}
+        </label>
+      ))}
+    </div>
+
+    {/* Additional Comments */}
+    <textarea
+      placeholder="Additional comments or suggestions"
+      value={inductionData.comments}
+      onChange={(e) => setInductionData({ ...inductionData, comments: e.target.value })}
+      className="border p-2 rounded w-full mt-4"
+    />
+
+    {/* Footer */}
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      <input type="text" placeholder="Signature of Associate"
+        value={inductionData.signature}
+        onChange={(e) => setInductionData({ ...inductionData, signature: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="date"
+        value={inductionData.date}
+        onChange={(e) => setInductionData({ ...inductionData, date: e.target.value })}
+        className="border p-2 rounded" />
+    </div>
+
+    {/* Submit + Cancel */}
+    <div className="flex justify-end space-x-2 mt-4">
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const res = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                type: "Induction Feedback Form",
+                formData: inductionData,
+                submittedBy: inductionData.associateName,
+              }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              alert("Induction Feedback submitted successfully!");
+              setShowInductionForm(false);
+            } else {
+              alert("Error: " + (data.error || "unknown"));
+            }
+          } catch (err) {
+            console.error("❌ Induction Feedback Submit Error:", err);
+            alert("Submission failed");
+          }
+        }}
+        className="px-4 py-2 bg-green-600 text-white rounded"
+      >
+        Submit
+      </button>
+      <button
+        type="button"
+        onClick={() => setShowInductionForm(false)}
+        className="px-4 py-2 border rounded"
+      >
+        Cancel
+      </button>
+    </div>
+  </DialogContent>
+</Dialog>
+<Dialog open={showInternOnrollForm} onOpenChange={setShowInternOnrollForm}>
+  <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Intern to Onroll Movement Template</DialogTitle>
+    </DialogHeader>
+
+    {/* Intern Details */}
+    <div className="grid grid-cols-2 gap-4 mb-4">
+      <input type="text" placeholder="Intern ID"
+        value={internOnrollData.internId}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, internId: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Intern Name"
+        value={internOnrollData.internName}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, internName: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="date" placeholder="Joining Date"
+        value={internOnrollData.joiningDate}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, joiningDate: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="date" placeholder="Completion Date"
+        value={internOnrollData.completionDate}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, completionDate: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Internship Title / Project"
+        value={internOnrollData.projectTitle}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, projectTitle: e.target.value })}
+        className="border p-2 rounded col-span-2" />
+      <input type="text" placeholder="Department"
+        value={internOnrollData.department}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, department: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Reporting Manager"
+        value={internOnrollData.reportingManager}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, reportingManager: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Department Head"
+        value={internOnrollData.departmentHead}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, departmentHead: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="date" placeholder="Onroll Date"
+        value={internOnrollData.onrollDate}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, onrollDate: e.target.value })}
+        className="border p-2 rounded" />
+    </div>
+
+    {/* Ratings */}
+    <div className="mt-4">
+      <p className="font-semibold">Areas of Assessment (1–5)</p>
+      {[
+        ["Learnability", "learnability"],
+        ["Technical Competence – Skills acquired", "technical"],
+        ["Responsibility / Accountability", "responsibility"],
+        ["Attendance", "attendance"],
+        ["Teamwork", "teamwork"],
+        ["Attitude", "attitude"],
+      ].map(([label, key]) => (
+        <div key={key} className="mb-2">
+          <p>{label}</p>
+          {[1, 2, 3, 4, 5].map((val) => (
+            <label key={val} className="ml-2">
+              <input
+                type="radio"
+                name={key}
+                value={val}
+                checked={internOnrollData.ratings[key] === val}
+                onChange={() =>
+                  setInternOnrollData({
+                    ...internOnrollData,
+                    ratings: { ...internOnrollData.ratings, [key]: val },
+                  })
+                }
+              />
+              {val}
+            </label>
+          ))}
+        </div>
+      ))}
+    </div>
+
+    {/* Recommendation */}
+    <div className="mt-4">
+      <p className="font-semibold">Recommendation (Justification)</p>
+      <textarea
+        placeholder="Justification for conversion to on roll"
+        value={internOnrollData.justification}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, justification: e.target.value })}
+        className="border p-2 rounded w-full"
+      />
+      <div className="mt-2">
+        <label>
+          <input
+            type="radio"
+            value="Yes"
+            checked={internOnrollData.recommendation === "Yes"}
+            onChange={() => setInternOnrollData({ ...internOnrollData, recommendation: "Yes" })}
+          />
+          Recommended to be part of SecureKloud
+        </label>
+        <label className="ml-4">
+          <input
+            type="radio"
+            value="No"
+            checked={internOnrollData.recommendation === "No"}
+            onChange={() => setInternOnrollData({ ...internOnrollData, recommendation: "No" })}
+          />
+          Not Recommended
+        </label>
+      </div>
+    </div>
+
+    {/* Footer */}
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      <input type="text" placeholder="Signature"
+        value={internOnrollData.signature}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, signature: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="date"
+        value={internOnrollData.date}
+        onChange={(e) => setInternOnrollData({ ...internOnrollData, date: e.target.value })}
+        className="border p-2 rounded" />
+    </div>
+
+    {/* Submit + Cancel */}
+    <div className="flex justify-end space-x-2 mt-4">
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const res = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                type: "Intern to Onroll Movement",
+                formData: internOnrollData,
+                submittedBy: internOnrollData.internName,
+              }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              alert("Intern Onroll Movement submitted successfully!");
+              setShowInternOnrollForm(false);
+            } else {
+              alert("Error: " + (data.error || "unknown"));
+            }
+          } catch (err) {
+            console.error("❌ Intern Onroll Submit Error:", err);
+            alert("Submission failed");
+          }
+        }}
+        className="px-4 py-2 bg-green-600 text-white rounded"
+      >
+        Submit
+      </button>
+      <button
+        type="button"
+        onClick={() => setShowInternOnrollForm(false)}
+        className="px-4 py-2 border rounded"
+      >
+        Cancel
+      </button>
+    </div>
+  </DialogContent>
+</Dialog>
+<Dialog open={showPipForm} onOpenChange={setShowPipForm}>
+  <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Performance Improvement Plan (PIP) Letter</DialogTitle>
+    </DialogHeader>
+
+    {/* Header Info */}
+    <div className="grid grid-cols-2 gap-4 mb-4">
+      <input type="date"
+        value={pipData.date}
+        onChange={(e) => setPipData({ ...pipData, date: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Employee Name"
+        value={pipData.employeeName}
+        onChange={(e) => setPipData({ ...pipData, employeeName: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Employee ID"
+        value={pipData.employeeId}
+        onChange={(e) => setPipData({ ...pipData, employeeId: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Designation"
+        value={pipData.designation}
+        onChange={(e) => setPipData({ ...pipData, designation: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Department"
+        value={pipData.department}
+        onChange={(e) => setPipData({ ...pipData, department: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="text" placeholder="Manager"
+        value={pipData.manager}
+        onChange={(e) => setPipData({ ...pipData, manager: e.target.value })}
+        className="border p-2 rounded" />
+    </div>
+
+    {/* PIP Details */}
+    <textarea
+      placeholder="Performance Concerns"
+      value={pipData.concerns}
+      onChange={(e) => setPipData({ ...pipData, concerns: e.target.value })}
+      className="border p-2 rounded w-full mb-4"
+    />
+    <textarea
+      placeholder="Improvement Areas"
+      value={pipData.improvementAreas}
+      onChange={(e) => setPipData({ ...pipData, improvementAreas: e.target.value })}
+      className="border p-2 rounded w-full mb-4"
+    />
+    <textarea
+      placeholder="Goals / Targets to be achieved"
+      value={pipData.goals}
+      onChange={(e) => setPipData({ ...pipData, goals: e.target.value })}
+      className="border p-2 rounded w-full mb-4"
+    />
+    <textarea
+      placeholder="Support & Resources provided"
+      value={pipData.support}
+      onChange={(e) => setPipData({ ...pipData, support: e.target.value })}
+      className="border p-2 rounded w-full mb-4"
+    />
+
+    {/* Review Period */}
+    <div className="grid grid-cols-2 gap-4 mb-4">
+      <input type="date"
+        value={pipData.reviewStart}
+        onChange={(e) => setPipData({ ...pipData, reviewStart: e.target.value })}
+        className="border p-2 rounded" />
+      <input type="date"
+        value={pipData.reviewEnd}
+        onChange={(e) => setPipData({ ...pipData, reviewEnd: e.target.value })}
+        className="border p-2 rounded" />
+    </div>
+
+    {/* Review Frequency */}
+    <div className="mb-4">
+      <p className="font-semibold">Review Frequency</p>
+      {["Weekly", "Bi-Weekly", "Monthly"].map((opt) => (
+        <label key={opt} className="ml-2">
+          <input
+            type="radio"
+            name="reviewFrequency"
+            value={opt}
+            checked={pipData.reviewFrequency === opt}
+            onChange={() => setPipData({ ...pipData, reviewFrequency: opt })}
+          />
+          {opt}
+        </label>
+      ))}
+    </div>
+
+    {/* Acknowledgement */}
+    <textarea
+      placeholder="Employee Comments"
+      value={pipData.employeeComments}
+      onChange={(e) => setPipData({ ...pipData, employeeComments: e.target.value })}
+      className="border p-2 rounded w-full mb-4"
+    />
+
+    {/* Signatures */}
+    <div className="grid grid-cols-3 gap-4 mt-4">
+      <div>
+        <label>Employee Signature</label>
+        <input type="text" placeholder="Employee Signature"
+          value={pipData.employeeSignature}
+          onChange={(e) => setPipData({ ...pipData, employeeSignature: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="date"
+          value={pipData.employeeDate}
+          onChange={(e) => setPipData({ ...pipData, employeeDate: e.target.value })}
+          className="border p-2 rounded w-full mt-2" />
+      </div>
+      <div>
+        <label>Manager Signature</label>
+        <input type="text" placeholder="Manager Signature"
+          value={pipData.managerSignature}
+          onChange={(e) => setPipData({ ...pipData, managerSignature: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="date"
+          value={pipData.managerDate}
+          onChange={(e) => setPipData({ ...pipData, managerDate: e.target.value })}
+          className="border p-2 rounded w-full mt-2" />
+      </div>
+      <div>
+        <label>HR Signature</label>
+        <input type="text" placeholder="HR Signature"
+          value={pipData.hrSignature}
+          onChange={(e) => setPipData({ ...pipData, hrSignature: e.target.value })}
+          className="border p-2 rounded w-full" />
+        <input type="date"
+          value={pipData.hrDate}
+          onChange={(e) => setPipData({ ...pipData, hrDate: e.target.value })}
+          className="border p-2 rounded w-full mt-2" />
+      </div>
+    </div>
+
+    {/* Submit + Cancel */}
+    <div className="flex justify-end space-x-2 mt-4">
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const res = await fetch("http://localhost:8000/api/nomination/submitNomination", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                type: "PIP Letter Template",
+                formData: pipData,
+                submittedBy: pipData.employeeName,
+              }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              alert("PIP Letter submitted successfully!");
+              setShowPipForm(false);
+            } else {
+              alert("Error: " + (data.error || "unknown"));
+            }
+          } catch (err) {
+            console.error("❌ PIP Submit Error:", err);
+            alert("Submission failed");
+          }
+        }}
+        className="px-4 py-2 bg-green-600 text-white rounded"
+      >
+        Submit
+      </button>
+      <button
+        type="button"
+        onClick={() => setShowPipForm(false)}
+        className="px-4 py-2 border rounded"
+      >
+        Cancel
+      </button>
+    </div>
+  </DialogContent>
+</Dialog>
+
+
+
 
       {/* Payroll Modal */}
       <Dialog open={showPayrollModal} onOpenChange={setShowPayrollModal}>
@@ -1689,7 +3857,6 @@ const HR = () => {
           <DialogHeader>
             <DialogTitle>Benefits Information</DialogTitle>
             <DialogDescription className="text-left text-sm space-y-6 mt-4 text-muted-foreground">
-              {/* Group Mediclaim Insurance Table */}
               <div>
                 <h2 className="font-semibold text-base mb-2">Group Mediclaim Insurance (Oct-24 to Oct-25)</h2>
                 <table className="w-full text-sm border border-gray-300 rounded-md">
@@ -1726,8 +3893,6 @@ const HR = () => {
                   </tbody>
                 </table>
               </div>
-
-              {/* Group Personal Accident Insurance Table */}
               <div>
                 <h2 className="font-semibold text-base mb-2">Group Personal Accident Insurance (Nov-24 to Nov-25)</h2>
                 <table className="w-full text-sm border border-gray-300 rounded-md">
@@ -1745,7 +3910,6 @@ const HR = () => {
                       ["Sum Insured", "5x Annual Fixed CTC"],
                       ["Coverage", "Total/Partial/Temporary Disablement, Death Cover"],
                       ["Weekly Compensation", "1% of CSI up to 104 weeks (max ₹5,000/week)"],
-                      ["Accident Medical Expenses", "40% of claim or 10% SI or actual (whichever is less)"],
                       ["Ambulance Charges", "₹2,000"],
                       ["Education Funds", "₹10,000 per child (max 2, up to 25 years)"],
                       ["Repatriation", "₹10,000 or actual"],
@@ -1759,8 +3923,6 @@ const HR = () => {
                   </tbody>
                 </table>
               </div>
-
-              {/* Keep rest unchanged */}
               <div>
                 <h2 className="font-semibold text-base">Certification Reimbursement</h2>
                 <p>
@@ -1770,7 +3932,6 @@ const HR = () => {
                   <strong>Note:</strong> Employee must serve at least 1 year after claiming reimbursement, else amount is recovered from F&F.
                 </p>
               </div>
-
               <div>
                 <h2 className="font-semibold text-base">Working in Night Shift / On-call Support</h2>
                 <ul className="list-disc pl-5 space-y-1">
@@ -1779,7 +3940,6 @@ const HR = () => {
                   <li>Manager must submit validated data to <a href="mailto:hr@securekloud.com" className="underline">hr@securekloud.com</a> by 20th of each month</li>
                 </ul>
               </div>
-
               <div>
                 <h2 className="font-semibold text-base">Local Travel</h2>
                 <p>
@@ -1791,7 +3951,6 @@ const HR = () => {
                   <li>Reimbursement within 2 weeks of claim submission</li>
                 </ul>
               </div>
-
               <div>
                 <h2 className="font-semibold text-base">Team Outing Allowance</h2>
                 <p>
@@ -1805,7 +3964,7 @@ const HR = () => {
 
       {/* Leave Modal */}
       <Dialog open={showLeaveModal} onOpenChange={setShowLeaveModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto  max-w-4xl">
+        <DialogContent className="max-h-[90vh] overflow-y-auto max-w-4xl">
           <DialogHeader>
             <DialogTitle>Leave Management</DialogTitle>
             <DialogDescription className="text-left mt-4 space-y-6 text-muted-foreground text-sm">
@@ -1826,19 +3985,13 @@ const HR = () => {
                         type: "Sick and Casual Leave",
                         applicability: "To all employees",
                         eligibility: "24 working days",
-                        remarks: [
-                          "No carry forward for next year",
-                          "No encashment",
-                        ],
+                        remarks: ["No carry forward for next year", "No encashment"],
                       },
                       {
                         type: "Earned / Privilege Leave",
                         applicability: "To all confirmed employees",
                         eligibility: "12 working days",
-                        remarks: [
-                          "Can carry forward maximum 45 days",
-                          "Encashment at the time of relieving",
-                        ],
+                        remarks: ["Can carry forward maximum 45 days", "Encashment at the time of relieving"],
                       },
                       {
                         type: "Maternity Leave",
@@ -1855,10 +4008,7 @@ const HR = () => {
                         type: "Paternity Leave",
                         applicability: "Male employees who have worked for 80 days post confirmation",
                         eligibility: "5 working days",
-                        remarks: [
-                          "Only for first 2 children",
-                          "No carry forward or encashed",
-                        ],
+                        remarks: ["Only for first 2 children", "No carry forward or encashed"],
                       },
                       {
                         type: "Marriage Leave",
@@ -1891,80 +4041,214 @@ const HR = () => {
           </DialogHeader>
         </DialogContent>
       </Dialog>
-
-      {/* Document View Modal */}
+        {/* Document View Modal */}
       <Dialog open={showDocModal} onOpenChange={setShowDocModal}>
         <DialogContent className="max-w-5xl h-[90vh] p-0 overflow-hidden">
           <DialogHeader className="px-4 pt-4 pb-2">
             <DialogTitle>Document Preview</DialogTitle>
           </DialogHeader>
           {docToView ? (
-            <iframe
-              src={`${docToView}#toolbar=1&navpanes=0&view=fitH`}
-              title="Document Viewer"
-              className="w-full h-[90vh]"
-            />
+            isDocx ? (
+              <div
+                className="p-4 overflow-y-auto h-[calc(90vh-60px)]"
+                dangerouslySetInnerHTML={{ __html: docContent }}
+              />
+            ) : (
+              <iframe
+                src={`${docToView}#toolbar=1&navpanes=0&view=fitH`}
+                title="Document Viewer"
+                className="w-full h-[90vh]"
+              />
+            )
           ) : (
             <p className="text-sm text-muted-foreground">No document selected</p>
           )}
         </DialogContent>
       </Dialog>
-
-      {/* Employee Directory Modal */}
-     {/* Employee Directory Modal */}
-     {/* Employee Directory Modal */}
+{/* Employee Directory Dialog */}
+{/* Employee Directory Dialog */}
 <Dialog open={showEmployeeModal} onOpenChange={setShowEmployeeModal}>
-  <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-2xl p-6">
-    <DialogHeader>
-      <DialogTitle className="text-2xl font-bold text-skcloud-dark-purple text-center mb-4">
+  <DialogContent className="max-w-6xl max-h-[85vh] overflow-y-auto">
+    <DialogHeader className="text-center">
+      <DialogTitle className="text-2xl font-semibold text-gray-800">
         Employee Directory
       </DialogTitle>
-      <DialogDescription className="text-center text-gray-600 mb-6">
+      <DialogDescription className="text-gray-500">
         Explore details of all employees including contact information and certifications.
       </DialogDescription>
     </DialogHeader>
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {enrichedEmployeeDirectory.map((employee, idx) => (
-        <Card
-          key={idx}
-          className="bg-gradient-to-br from-white to-gray-50 hover:shadow-lg hover:scale-105 transition-transform duration-300 border border-gray-200 rounded-xl overflow-hidden"
-        >
-          <CardHeader className="p-4 bg-skcloud-purple/10 text-center">
-            <div className="w-16 h-16 mx-auto rounded-full bg-skcloud-purple/20 flex items-center justify-center">
-              <span className="text-xl font-semibold text-skcloud-purple">
-                {employee.EmployeeName.split(" ").map((n) => n[0]).join("")}
-              </span>
+
+    {loadingEmployees ? (
+      <div className="text-center py-8 text-gray-500">Loading employees...</div>
+    ) : errorEmployees ? (
+      <div className="text-center py-8 text-red-600">{errorEmployees}</div>
+    ) : (
+      <>
+        {/* 🔽 Filter Controls */}
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
+          {/* 🏢 Department Filter */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Department</label>
+            <select
+              className="border p-2 rounded"
+              value={selectedDepartment}
+              onChange={(e) => setSelectedDepartment(e.target.value)}
+            >
+              <option value="">All Departments</option>
+              {uniqueDepartments.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 🩸 Blood Group Filter */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Blood Group</label>
+            <select
+              value={selectedBloodGroup}
+              onChange={(e) => setSelectedBloodGroup(e.target.value)}
+              className="border p-2 rounded"
+            >
+              <option value="">All</option>
+              <option value="A+Ve">A+Ve</option>
+              <option value="A-Ve">A-Ve</option>
+              <option value="B+Ve">B+Ve</option>
+              <option value="B-Ve">B-Ve</option>
+              <option value="O+Ve">O+Ve</option>
+              <option value="O-Ve">O-Ve</option>
+              <option value="AB+Ve">AB+Ve</option>
+              <option value="AB-Ve">AB-Ve</option>
+            </select>
+          </div>
+
+          {/* 🧠 Skills Filter */}
+          <div className="flex-1 flex flex-col">
+            <label className="text-sm font-medium mb-1">Skills</label>
+            <textarea
+              placeholder="Enter skills (e.g. Java HTML React)"
+              value={skillsInput}
+              onChange={(e) => setSkillsInput(e.target.value)}
+              className="border p-2 rounded h-16"
+            ></textarea>
+            <label className="flex items-center mt-1 text-sm">
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={useAndFilter}
+                onChange={(e) => setUseAndFilter(e.target.checked)}
+              />
+              Match all skills (AND)
+            </label>
+          </div>
+        </div>
+
+        {/* 🔍 Search by Name */}
+        <div className="flex flex-col md:flex-row gap-3 mb-4">
+          <input
+            type="text"
+            placeholder="Search by employee name"
+            className="border p-2 rounded w-full"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {/* 🧩 Filter Logic */}
+        {(() => {
+          const filteredEmployees = employeeDirectory.filter((emp) => {
+            const matchDept =
+              !selectedDepartment ||
+              emp.Department === selectedDepartment ||
+              emp.department === selectedDepartment;
+
+            const matchBlood =
+              !selectedBloodGroup || emp.BloodGroup === selectedBloodGroup;
+
+            const skills = (
+              emp.SpecialSkill ||
+              emp.Tech1 ||
+              emp.Tech2 ||
+              ""
+            ).toLowerCase();
+
+            const inputSkills = skillsInput
+              .toLowerCase()
+              .split(/[, ]+/)
+              .filter(Boolean);
+
+            let matchSkills = true;
+            if (inputSkills.length > 0) {
+              matchSkills = useAndFilter
+                ? inputSkills.every((skill) => skills.includes(skill))
+                : inputSkills.some((skill) => skills.includes(skill));
+            }
+
+            const matchName =
+              !searchTerm ||
+              emp.EmployeeName?.toLowerCase().includes(searchTerm.toLowerCase());
+
+            return matchDept && matchBlood && matchSkills && matchName;
+          });
+
+          return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
+              {filteredEmployees.length === 0 ? (
+                <div className="col-span-full text-center py-8 text-gray-600">
+                  No employees found.
+                </div>
+              ) : (
+                filteredEmployees.map((emp) => (
+                  <div
+                    key={emp._id}
+                    className="bg-white rounded-2xl shadow-md border border-gray-200 hover:shadow-lg transition-all duration-200"
+                  >
+                    {/* Top section with initials */}
+                    <div className="bg-purple-50 rounded-t-2xl p-4 flex flex-col items-center">
+                      <div className="w-14 h-14 rounded-full bg-purple-200 flex items-center justify-center text-purple-700 text-xl font-semibold">
+                        {emp.EmployeeName
+                          ? emp.EmployeeName.split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 2)
+                          : "NA"}
+                      </div>
+                      <h2 className="mt-3 text-lg font-semibold text-gray-800 text-center">
+                        {emp.EmployeeName || "Unnamed"}
+                      </h2>
+                      <p className="text-sm text-gray-500">
+                        Emp ID: {emp.EmpID || "N/A"}
+                      </p>
+                    </div>
+
+                    {/* Employee details */}
+                    <div className="p-4 text-sm space-y-1">
+                      <p><strong>Emp ID:</strong> {emp.EmpID || "N/A"}</p>
+                      <p><strong>Department:</strong> {emp.Department || "N/A"}</p>
+                      <p><strong>Phone:</strong> {emp.PhoneNumber || "N/A"}</p>
+                      <p><strong>Email:</strong> {emp.Email || "N/A"}</p>
+                      <p><strong>Blood Group:</strong> {emp.BloodGroup || "N/A"}</p>
+                      <p><strong>Emergency Contact:</strong> {emp.EmergencyContact || "N/A"}</p>
+                      <p><strong>Current Address:</strong> {emp.CurrentAddress || "N/A"}</p>
+                      <p><strong>Permanent Address:</strong> {emp.PermanentAddress || "N/A"}</p>
+                      <p><strong>PAN:</strong> {emp.PAN || "N/A"}</p>
+                      <p><strong>Aadhar:</strong> {emp.Aadhar || "N/A"}</p>
+                      <p><strong>Primary Skills:</strong> {emp.Tech1 || "N/A"}</p>
+                      <p><strong>Secondary Skills:</strong> {emp.Tech2 || "N/A"}</p>
+                      <p><strong>Special Skill:</strong> {emp.SpecialSkill || "N/A"}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
-            <CardTitle className="text-lg font-semibold mt-2 text-gray-800">
-              {employee.EmployeeName}
-            </CardTitle>
-            <CardDescription className="text-sm text-gray-500">
-              Emp ID: {employee.EmpID}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 space-y-2 text-sm">
-            <p className="text-gray-700">
-              <span className="font-medium">Dept:</span> {employee.Dept || "N/A"}
-            </p>
-            <p className="text-gray-700">
-              <span className="font-medium">Domain:</span> {employee.Domain || "N/A"}
-            </p>
-            <p className="text-gray-700">
-              <span className="font-medium">Email:</span> {employee.email}
-            </p>
-            <p className="text-gray-700">
-              <span className="font-medium">Phone:</span> {employee.phone}
-            </p>
-            <p className="text-gray-700">
-              <span className="font-medium">Certifications:</span>{" "}
-              {employee.Certifications || "None"}
-            </p>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+          );
+        })()}
+      </>
+    )}
   </DialogContent>
 </Dialog>
+
 
     </div>
   );
