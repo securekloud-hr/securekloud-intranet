@@ -1,32 +1,35 @@
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Announcement = {
+  _id?: string;
   title: string;
-  date: string;
   content: string;
-  category: string;
+  date?: string;
+  category?: string;
 };
 
 export function Announcements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-useEffect(() => {
-  const localData = JSON.parse(localStorage.getItem("announcements") || "[]");
+  const [loading, setLoading] = useState(true);
 
-  if (localData.length > 0) {
-    // If there are announcements added by admin (from localStorage)
-    setAnnouncements(localData);
-  } else {
-    // Otherwise, use default announcements from announcements.json
-    fetch("/data/announcements.json")
-      .then((res) => res.json())
-      .then((data) => setAnnouncements(data));
-  }
-}, []);
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const res = await fetch("http://192.168.26.103:8000/api/admin/announcements");
+        if (!res.ok) throw new Error("Failed to fetch announcements");
+        const data = await res.json();
+        setAnnouncements(data);
+      } catch (err) {
+        console.error("Error fetching announcements:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnnouncements();
+  }, []);
 
-
-  const getCategoryColor = (category: string): string => {
+  const getCategoryColor = (category: string = "General"): string => {
     switch (category) {
       case "HR":
         return "bg-blue-100 text-blue-800";
@@ -39,28 +42,45 @@ useEffect(() => {
     }
   };
 
+  if (loading) return <p>Loading announcements...</p>;
+
   return (
     <Card className="sk-card">
       <CardHeader className="pb-3">
         <CardTitle>Announcements</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4">
-        {announcements.map((announcement, index) => (
-          <div key={index} className="flex flex-col space-y-2 border-b pb-3 last:border-b-0 last:pb-0">
-            <div className="flex items-start justify-between">
-              <div>
-                <h4 className="font-semibold">{announcement.title}</h4>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-muted-foreground">{announcement.date}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${getCategoryColor(announcement.category)}`}>
-                    {announcement.category}
-                  </span>
+        {announcements.length > 0 ? (
+          announcements.map((a) => (
+            <div
+              key={a._id}
+              className="flex flex-col space-y-2 border-b pb-3 last:border-b-0 last:pb-0"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <h4 className="font-semibold">{a.title}</h4>
+                  <p className="text-sm text-muted-foreground">{a.content}</p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    {a.date && (
+                      <span className="text-sm text-muted-foreground">
+                        {new Date(a.date).toLocaleDateString()}
+                      </span>
+                    )}
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${getCategoryColor(
+                        a.category
+                      )}`}
+                    >
+                      {a.category || "General"}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-            <p className="text-sm">{announcement.content}</p>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No announcements available.</p>
+        )}
       </CardContent>
     </Card>
   );

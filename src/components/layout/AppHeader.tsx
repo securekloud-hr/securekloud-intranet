@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   name?: string;
@@ -17,7 +18,20 @@ interface User {
 }
 
 export function AppHeader({ user }: { user: User }) {
+  const navigate = useNavigate();
   const initial = user?.name?.charAt?.(0)?.toUpperCase?.() || "U";
+
+  const handleLogout = () => {
+    // ✅ Clear all authentication data
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+
+    // ✅ Redirect to login page
+    navigate("/login");
+
+    // Optional: reload to reset any app state
+    window.location.reload();
+  };
 
   return (
     <header className="h-16 border-b flex items-center justify-between px-4 bg-white">
@@ -30,6 +44,7 @@ export function AppHeader({ user }: { user: User }) {
       </div>
 
       <div className="flex items-center space-x-2">
+        {/* 🔔 Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -39,13 +54,18 @@ export function AppHeader({ user }: { user: User }) {
           <DropdownMenuContent align="end" className="w-80">
             <DropdownMenuLabel>Notifications</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>New update available</DropdownMenuItem>
+            <DropdownMenuItem>No new notifications</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* 👤 User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center space-x-2" size="sm">
+            <Button
+              variant="ghost"
+              className="flex items-center space-x-2"
+              size="sm"
+            >
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-skcloud-purple text-white">
                   {initial}
@@ -53,22 +73,19 @@ export function AppHeader({ user }: { user: User }) {
               </Avatar>
               <div className="flex flex-col items-start text-left leading-tight">
                 <span className="font-medium">{user?.name || "Unknown"}</span>
-                <span className="text-sm text-muted-foreground">👤 {user?.fullName || "No info"}</span>
+                <span className="text-sm text-muted-foreground">
+                  👤 {user?.fullName || "No info"}
+                </span>
               </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                localStorage.removeItem("userId");
-                window.location.reload();
-              }}
-            >
-              Logout
+            <DropdownMenuItem onClick={() => navigate("/settings")}>
+              Settings
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
