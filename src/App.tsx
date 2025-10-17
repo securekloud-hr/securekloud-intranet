@@ -6,26 +6,26 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 
 import { AppLayout } from "./components/layout/AppLayout";
-import Index from "./pages/Index";
-import HR from "./pages/HR";
-import Policies from "./pages/Policies";
-import FAQs from "./pages/FAQs";
-import LearningDevelopment from "./pages/LearningDevelopment";
-import Products from "./pages/Products";
-import EmployeeEngagement from "./pages/EmployeeEngagement";
-import InternalJobs from "./pages/InternalJobs";
-import Talentacquisition from "./pages/Talentacquisition";
-import Holidays from "./pages/Holidays";
-import NotFound from "./pages/NotFound";
-import OrgStructure from "./pages/orgstructure";
-import Performance from "./pages/Performance";
-import MySkills from "./pages/MySkills";
-import MyCertifications from "./pages/MyCertifications";
-import AdminDashboard from "./pages/AdminDashboard";
-import LoginPage from "./pages/LoginPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import MyCourses from "./pages/MyCourses";
-import ResetPassword from "./pages/ResetPassword";
+import Index from "./Pages/Index";
+import HR from "./Pages/HR";
+import Policies from "./Pages/Policies";
+import FAQs from "./Pages/FAQs";
+import LearningDevelopment from "./Pages/LearningDevelopment";
+import Products from "./Pages/Products";
+import EmployeeEngagement from "./Pages/EmployeeEngagement";
+import InternalJobs from "./Pages/InternalJobs";
+import Talentacquisition from "./Pages/Talentacquisition";
+import Holidays from "./Pages/Holidays";
+import NotFound from "./Pages/NotFound";
+import OrgStructure from "./Pages/orgstructure";
+import Performance from "./Pages/Performance";
+import MySkills from "./Pages/MySkills";
+import MyCertifications from "./Pages/MyCertifications";
+import AdminDashboard from "./Pages/AdminDashboard";
+import LoginPage from "./Pages/LoginPage";
+import ForgotPasswordPage from "./Pages/ForgotPasswordPage";
+import MyCourses from "./Pages/MyCourses";
+import ResetPassword from "./Pages/ResetPassword";
 
 const queryClient = new QueryClient({
   defaultOptions: {
